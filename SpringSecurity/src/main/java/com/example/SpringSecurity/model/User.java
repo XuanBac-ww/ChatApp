@@ -34,6 +34,7 @@ public class User implements UserDetails {
     private HistoryLogin historyLogin;
 
     @Column(unique = true, length = 100, nullable = false)
+
     private String email;
 
     @Column(nullable = false)
