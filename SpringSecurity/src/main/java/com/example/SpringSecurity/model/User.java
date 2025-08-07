@@ -31,7 +31,7 @@ public class User implements UserDetails {
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     @JsonIgnore
-    private RefreshToken refreshToken;
+    private HistoryLogin historyLogin;
 
     @Column(unique = true, length = 100, nullable = false)
     private String email;
