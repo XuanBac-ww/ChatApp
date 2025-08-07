@@ -1,9 +1,9 @@
-package com.example.SpringSecurity.dtos;
+package com.example.SpringSecurity.dtos.auth;
 
 import lombok.Data;
 
 @Data
-public class LoginUser {
+public class LoginUserRequest {
     private String email;
     private String password;
 }

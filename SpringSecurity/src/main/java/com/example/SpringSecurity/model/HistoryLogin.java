@@ -13,7 +13,7 @@ import java.time.Instant;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class RefreshToken {
+public class HistoryLogin {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

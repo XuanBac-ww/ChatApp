@@ -1,4 +1,4 @@
-package com.example.SpringSecurity.dtos;
+package com.example.SpringSecurity.dtos.auth;
 
 import lombok.Getter;
 import lombok.Setter;
