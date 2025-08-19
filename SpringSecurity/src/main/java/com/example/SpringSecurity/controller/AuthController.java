@@ -10,6 +10,7 @@ import com.example.SpringSecurity.service.auth.IAuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,7 +31,6 @@ public class AuthController {
         User user = authService.signup(registerUser);
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
-
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginUserRequest loginUser) {
         User user = authService.authenticate(loginUser);
@@ -41,7 +41,6 @@ public class AuthController {
         loginResponse.setRefreshToken(historyLoginService.createRefreshToken(user.getId()));
         return new ResponseEntity<>(loginResponse, HttpStatus.OK);
     }
-
     @PostMapping("/refresh")
     public ResponseEntity<?> refreshToken(@RequestBody Map<String,String> payload) {
         String refreshToken = payload.get("refreshToken");
