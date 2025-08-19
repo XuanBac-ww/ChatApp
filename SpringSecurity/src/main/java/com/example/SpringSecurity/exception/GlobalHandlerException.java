@@ -3,75 +3,62 @@ package com.example.SpringSecurity.exception;
 import com.example.SpringSecurity.response.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.NoHandlerFoundException;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalHandlerException {
-    // Xử lý ResourceNotFoundException
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ApiResponse<?>> handleNotFound(ResourceNotFoundException ex) {
-        ApiResponse<?> response = new ApiResponse<>(
-                HttpStatus.NOT_FOUND.value(),
-                false,
-                ex.getMessage(),
-                null
-        );
-        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-    }
-
-    // Xử lý ResourceGoneException
-    @ExceptionHandler(ResourceGoneException.class)
-    public ResponseEntity<ApiResponse<?>> handleGone(ResourceGoneException ex) {
-        ApiResponse<?> response = new ApiResponse<>(
-                HttpStatus.GONE.value(),
-                false,
-                ex.getMessage(),
-                null
-        );
-        return new ResponseEntity<>(response, HttpStatus.GONE);
-    }
-
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiResponse<?>> handleValidationException(MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getFieldErrors().forEach(error ->
-                errors.put(error.getField(), error.getDefaultMessage())
-        );
-
-        ApiResponse<?> response = new ApiResponse<>(
-                HttpStatus.BAD_REQUEST.value(),
-                false,
-                "Validation failed",
-                errors
-        );
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(ValidateException.class)
-    public ResponseEntity<ApiResponse<?>> handleValidateException(ValidateException ex) {
-        ApiResponse<?> response = new ApiResponse<>(
-                HttpStatus.BAD_REQUEST.value(),
-                false,
-                ex.getMessage(),
-                null
-        );
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-    }
-
-
+    // Lỗi chung
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponse<?>> handleGlobalException(Exception ex) {
-        ApiResponse<?> response = new ApiResponse<>(
-                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                false,
-                ex.getMessage(),
-                null
-        );
-        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    public ResponseEntity<ApiResponse<Object>> handleException(Exception ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ApiResponse<>(
+                        HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                        false,
+                        ex.getMessage(),
+                        null
+                ));
+    }
+
+    // 401 - Unauthorized
+    @ExceptionHandler(org.springframework.security.authentication.BadCredentialsException.class)
+    public ResponseEntity<ApiResponse<Object>> handleBadCredentials(Exception ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(new ApiResponse<>(
+                        HttpStatus.UNAUTHORIZED.value(),
+                        false,
+                        "Unauthorized: " + ex.getMessage(),
+                        null
+                ));
+    }
+
+    // 403 - Forbidden
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiResponse<Object>> handleAccessDenied(Exception ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(new ApiResponse<>(
+                        HttpStatus.FORBIDDEN.value(),
+                        false,
+                        "Forbidden: " + ex.getMessage(),
+                        null
+                ));
+    }
+
+    // 404 - API không tồn tại
+    @ExceptionHandler(NoHandlerFoundException.class)
+    public ResponseEntity<ApiResponse<Object>> handleNotFound(NoHandlerFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ApiResponse<>(
+                        HttpStatus.NOT_FOUND.value(),
+                        false,
+                        "API not found: " + ex.getRequestURL(),
+                        null
+                ));
     }
 }
