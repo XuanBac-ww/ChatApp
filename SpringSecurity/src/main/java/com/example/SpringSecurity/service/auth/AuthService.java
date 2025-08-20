@@ -1,60 +1,70 @@
 package com.example.SpringSecurity.service.auth;
 
+import com.example.SpringSecurity.dtos.auth.LoginResponse;
 import com.example.SpringSecurity.dtos.auth.LoginUserRequest;
 import com.example.SpringSecurity.dtos.auth.RegisterUserRequest;
 import com.example.SpringSecurity.exception.ResourceNotFoundException;
-import com.example.SpringSecurity.exception.ValidateException;
 import com.example.SpringSecurity.model.User;
 import com.example.SpringSecurity.repository.UserRepository;
+import com.example.SpringSecurity.response.ApiResponse;
+import com.example.SpringSecurity.service.HistoryLogin.IHistoryLoginService;
+import com.example.SpringSecurity.service.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+
 
 
 @RequiredArgsConstructor
 @Service
 @Slf4j
 public class AuthService implements IAuthService{
+
+
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
+    private final IHistoryLoginService historyLoginService;
 
     @Override
-    public User signup(RegisterUserRequest registerUser) {
-        log.info("Attempting to register user with email: {}", registerUser.getEmail());
-
-        if(registerUser.getFullName() == null) {
-            throw new ValidateException("FullName should be not Null");
+    public ApiResponse<User> signup(RegisterUserRequest registerUser) {
+        if(!StringUtils.hasText(registerUser.getFullName())) {
+            return new ApiResponse<>(400,false,"FullName is required",null);
         }
 
-        if(registerUser.getEmail() == null) {
-            throw new ValidateException("Email should be not Null");
+        if (!StringUtils.hasText(registerUser.getEmail())) {
+            return new ApiResponse<>(400,false,"Email is required",null);
         }
-        if(registerUser.getPassword() == null) {
-            throw new ValidateException("Password should be not Null");
-        }
-        User user = User.builder()
-                .fullName(registerUser.getFullName())
-                .email(registerUser.getEmail())
-                .password(passwordEncoder.encode(registerUser.getPassword()))
-                .build();
 
-        log.info("User registered successfully with ID: {}", user.getId());
-        return userRepository.save(user);
+        if (!StringUtils.hasText(registerUser.getPassword())) {
+            return new ApiResponse<>(400,false,"Password is required",null);
+        }
+
+        return userRepository.findByEmail(registerUser.getEmail())
+                .map(u -> new ApiResponse<User>(400,false,"Email exit",null))
+                .orElseGet(() -> {
+                    User  user = User.builder()
+                            .fullName(registerUser.getFullName())
+                            .email(registerUser.getEmail())
+                            .password(passwordEncoder.encode(registerUser.getPassword()))
+                            .build();
+                    userRepository.save(user);
+
+                    return new ApiResponse<>(200,true,"Sign Up Successfully",user);
+                });
     }
-
     @Override
-    public User authenticate(LoginUserRequest loginUser) {
-
-        log.info("Attempting to authenticate user with email: {}", loginUser.getEmail());
-        if(loginUser.getEmail() == null) {
-            throw new ValidateException("Email should be not Null");
+    public ApiResponse<LoginResponse> authenticate(LoginUserRequest loginUser) {
+        if(!StringUtils.hasText(loginUser.getEmail())) {
+            return new ApiResponse<>(400,false,"Email is required",null);
         }
-        if(loginUser.getPassword() == null) {
-            throw new ValidateException("Email should be not Null");
+        if(!StringUtils.hasText(loginUser.getPassword())) {
+            return new ApiResponse<>(400,false,"Password is required",null);
         }
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -62,12 +72,14 @@ public class AuthService implements IAuthService{
                         loginUser.getPassword()
                 )
         );
-
-
         User user =  userRepository.findByEmail(loginUser.getEmail())
                 .orElseThrow(() -> new ResourceNotFoundException("User Not Found"));
-        log.info("User authenticated successfully: {}", user.getId());
-        return user;
-    }
 
+        String jwt = jwtService.generateToken(user);
+        LoginResponse loginResponse = new LoginResponse();
+        loginResponse.setToken(jwt);
+        loginResponse.setExpiresIn(jwtService.getExpirationTime());
+        loginResponse.setRefreshToken(historyLoginService.createRefreshToken(user.getId()).getData());
+        return new ApiResponse<>(200,true,"Sign Up Successfully",loginResponse);
+    }
 }

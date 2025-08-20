@@ -1,12 +1,11 @@
 package com.example.SpringSecurity.service.HistoryLogin;
 
-import com.example.SpringSecurity.exception.ResourceGoneException;
 import com.example.SpringSecurity.exception.ResourceNotFoundException;
-import com.example.SpringSecurity.exception.ValidateException;
 import com.example.SpringSecurity.model.HistoryLogin;
 import com.example.SpringSecurity.model.User;
 import com.example.SpringSecurity.repository.HistoryLoginRepository;
 import com.example.SpringSecurity.repository.UserRepository;
+import com.example.SpringSecurity.response.ApiResponse;
 import com.example.SpringSecurity.service.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -31,62 +31,48 @@ public class HistoryLoginService implements IHistoryLoginService{
 
     @Transactional
     @Override
-    public String createRefreshToken(Long userId) {
+    public ApiResponse<String> createRefreshToken(Long userId) {
 
         if(userId == null) {
-            throw new ValidateException("userId is null");
+            return new ApiResponse<>(400,false,"Id is null",null);
         }
 
-        log.info("Creating refresh token for user ID: {}", userId);
         HistoryLogin token = historyLoginRepository.findByUserId(userId)
-                .orElseGet(() -> {
-                    log.debug("No existing token found for user ID: {}, creating new one", userId);
-                    return new HistoryLogin();
-                });
+                .orElseGet(HistoryLogin::new);
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> {
-                    log.warn("User not found when creating refresh token: {}", userId);
-                    return new ResourceNotFoundException("User not found with id: " + userId);
-                });
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
         token.setUser(user);
         token.setExpiryDate(Instant.now().plusMillis(refreshExpiration));
         token.setToken(UUID.randomUUID().toString());
         historyLoginRepository.save(token);
-        log.info("Refresh token created for user ID: {}, token: {}", userId, token.getToken());
-        return token.getToken();
+        return new ApiResponse<>(400,false,"RefreshToken Successfully",token.getToken());
     }
 
     public boolean isTokenExpired(HistoryLogin token) {
         if(token == null) {
-            throw new ValidateException("token is null");
+            return true;
         }
-        boolean expired = token.getExpiryDate().isBefore(Instant.now());
-        log.debug("Checking if token is expired (token: {}): {}", token.getToken(), expired);
-        return expired;
+        return token.getExpiryDate().isBefore(Instant.now());
     }
 
     @Override
-    public String handleRefreshToken(String token) {
+    public ApiResponse<String> handleRefreshToken(String token) {
 
-        if(token == null) {
-            throw new ValidateException("token is null");
+        if(token == null || token.trim().isEmpty()) {
+            return new ApiResponse<>(400, false, "Refresh token is required", null);
         }
-        log.info("Handling refresh token request: {}", token);
-        HistoryLogin refreshToken = historyLoginRepository.findByToken(token)
-                .orElseThrow(() -> {
-                    log.warn("Refresh token not found: {}", token);
-                    return new ResourceNotFoundException("Token Not Found");
-                });
 
+        Optional<HistoryLogin> historyLogin = historyLoginRepository.findByToken(token);
+        if (historyLogin.isEmpty()) {
+            return new ApiResponse<>(404, false, "Token not found", null);
+        }
+        HistoryLogin refreshToken = historyLogin.get();
         if(isTokenExpired(refreshToken)) {
-            log.warn("Refresh token expired: {}", token);
             historyLoginRepository.delete(refreshToken);
-            throw new ResourceGoneException("Refresh Token expired. Please Login again");
+            return new ApiResponse<>(401, false, "Token expired", null);
         }
-        String jwt = jwtService.generateToken(refreshToken.getUser());
-        log.info("Refresh token valid. New JWT issued for user ID: {}", refreshToken.getUser().getId());
-        return jwt;
+        return new ApiResponse<>(400,true,"RefreshToken Successfully",jwtService.generateToken(refreshToken.getUser()));
     }
 
 }

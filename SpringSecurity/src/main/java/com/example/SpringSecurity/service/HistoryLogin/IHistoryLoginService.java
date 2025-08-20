@@ -1,10 +1,11 @@
 package com.example.SpringSecurity.service.HistoryLogin;
 
+import com.example.SpringSecurity.response.ApiResponse;
 import org.springframework.transaction.annotation.Transactional;
 
 public interface IHistoryLoginService {
     @Transactional
-    String createRefreshToken(Long userId);
+    ApiResponse<String> createRefreshToken(Long userId);
 
-    String handleRefreshToken(String token);
+    ApiResponse<String> handleRefreshToken(String token);
 }
