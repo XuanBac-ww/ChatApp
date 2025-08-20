@@ -11,6 +11,8 @@ import com.example.SpringSecurity.service.HistoryLogin.IHistoryLoginService;
 import com.example.SpringSecurity.service.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,7 +25,7 @@ import org.springframework.util.StringUtils;
 @Service
 @Slf4j
 public class AuthService implements IAuthService{
-
+    private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -33,15 +35,19 @@ public class AuthService implements IAuthService{
 
     @Override
     public ApiResponse<User> signup(RegisterUserRequest registerUser) {
+        logger.info("Start signup with email: {}", registerUser.getEmail());
         if(!StringUtils.hasText(registerUser.getFullName())) {
+            logger.warn("Signup failed: fullName is empty");
             return new ApiResponse<>(400,false,"FullName is required",null);
         }
 
         if (!StringUtils.hasText(registerUser.getEmail())) {
+            logger.warn("Signup failed: fullName is empty");
             return new ApiResponse<>(400,false,"Email is required",null);
         }
 
         if (!StringUtils.hasText(registerUser.getPassword())) {
+            logger.warn("Signup failed: fullName is empty");
             return new ApiResponse<>(400,false,"Password is required",null);
         }
 
@@ -54,7 +60,7 @@ public class AuthService implements IAuthService{
                             .password(passwordEncoder.encode(registerUser.getPassword()))
                             .build();
                     userRepository.save(user);
-
+                    logger.info("User created successfully with email: {}", user.getEmail());
                     return new ApiResponse<>(200,true,"Sign Up Successfully",user);
                 });
     }
