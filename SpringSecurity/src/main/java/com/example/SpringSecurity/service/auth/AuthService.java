@@ -37,17 +37,19 @@ public class AuthService implements IAuthService{
     public ApiResponse<User> signup(RegisterUserRequest registerUser) {
         logger.info("Start signup with email: {}", registerUser.getEmail());
         if(!StringUtils.hasText(registerUser.getFullName())) {
-            logger.warn("Signup failed: fullName is empty");
+            log.info("Signup validation failed: fullName is empty, email={}", registerUser.getEmail());
             return new ApiResponse<>(400,false,"FullName is required",null);
         }
 
         if (!StringUtils.hasText(registerUser.getEmail())) {
-            logger.warn("Signup failed: fullName is empty");
+            log.info("Signup validation failed: Email is empty, fullName={}", registerUser.getFullName());
+
             return new ApiResponse<>(400,false,"Email is required",null);
         }
 
         if (!StringUtils.hasText(registerUser.getPassword())) {
-            logger.warn("Signup failed: fullName is empty");
+            log.info("Signup validation failed: Password is empty, email={}", registerUser.getEmail());
+
             return new ApiResponse<>(400,false,"Password is required",null);
         }
 

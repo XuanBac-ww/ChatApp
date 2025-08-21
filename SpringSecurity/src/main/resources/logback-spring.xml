@@ -1,42 +1,48 @@
-<configuration scan="true">
+<configuration>
+    <springProperty scope="context" name="LOG_PATH" source="logging.file.path" defaultValue="./logs"/>
 
-    <!-- In ra console -->
-    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <pattern>%d{HH:mm:ss} %-5level [%thread] %logger{36} - %msg%n</pattern>
-        </encoder>
-    </appender>
-
-    <!-- Ghi ra file và xoay file theo ngày -->
-    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <!-- File log hiện tại -->
-        <file>logs/app.log</file>
-
-        <!-- Chính sách xoay file theo ngày -->
+    <!-- System log -->
+    <appender name="SYSTEM_LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/system.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <!-- Tạo file log mới mỗi ngày -->
-            <fileNamePattern>logs/app-%d{yyyy-MM-dd}.log</fileNamePattern>
-            <!-- Giữ log trong 30 ngày -->
+            <fileNamePattern>${LOG_PATH}/system-%d{yyyy-MM-dd}.log</fileNamePattern>
             <maxHistory>30</maxHistory>
-            <!-- Giới hạn tổng dung lượng log -->
-            <totalSizeCap>1GB</totalSizeCap>
         </rollingPolicy>
-
         <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level [%thread] %logger{36} - %msg%n</pattern>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
 
-    <!-- Root logger: mặc định INFO -->
-    <root level="INFO">
-        <appender-ref ref="CONSOLE"/>
-        <appender-ref ref="FILE"/>
-    </root>
+    <!-- App log -->
+    <appender name="APP_LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/app.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/app-%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} [traceId=%X{traceId}] - %msg%n</pattern>
+        </encoder>
+    </appender>
 
-    <!-- Log chi tiết hơn cho code của bạn -->
-    <logger name="com.example.SpringSecurity" level="DEBUG" additivity="false">
-        <appender-ref ref="CONSOLE"/>
-        <appender-ref ref="FILE"/>
+    <!-- System logs (Spring, Hibernate, Tomcat, ...) -->
+    <logger name="org.springframework" level="INFO" additivity="false">
+        <appender-ref ref="SYSTEM_LOG"/>
+    </logger>
+    <logger name="org.hibernate" level="INFO" additivity="false">
+        <appender-ref ref="SYSTEM_LOG"/>
+    </logger>
+    <logger name="org.apache" level="INFO" additivity="false">
+        <appender-ref ref="SYSTEM_LOG"/>
     </logger>
 
+    <!-- App logs (your business code) -->
+    <logger name="com.example" level="DEBUG" additivity="false">
+        <appender-ref ref="APP_LOG"/>
+    </logger>
+
+    <!-- Root: chỉ nên log hệ thống để tránh ghi trùng -->
+    <root level="INFO">
+        <appender-ref ref="SYSTEM_LOG"/>
+    </root>
 </configuration>
