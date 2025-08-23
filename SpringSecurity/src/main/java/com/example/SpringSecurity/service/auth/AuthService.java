@@ -1,12 +1,12 @@
 package com.example.SpringSecurity.service.auth;
 
-import com.example.SpringSecurity.dtos.auth.LoginResponse;
-import com.example.SpringSecurity.dtos.auth.LoginUserRequest;
-import com.example.SpringSecurity.dtos.auth.RegisterUserRequest;
-import com.example.SpringSecurity.exception.ResourceNotFoundException;
+import com.example.SpringSecurity.dto.response.auth.LoginResponse;
+import com.example.SpringSecurity.dto.request.auth.LoginUserRequest;
+import com.example.SpringSecurity.dto.request.auth.RegisterUserRequest;
+import com.example.SpringSecurity.exception.AppException;
 import com.example.SpringSecurity.model.User;
 import com.example.SpringSecurity.repository.UserRepository;
-import com.example.SpringSecurity.response.ApiResponse;
+import com.example.SpringSecurity.dto.response.api.ApiResponse;
 import com.example.SpringSecurity.service.HistoryLogin.IHistoryLoginService;
 import com.example.SpringSecurity.service.JwtService;
 import lombok.RequiredArgsConstructor;
@@ -18,8 +18,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-
-
 
 @RequiredArgsConstructor
 @Service
@@ -81,7 +79,7 @@ public class AuthService implements IAuthService{
                 )
         );
         User user =  userRepository.findByEmail(loginUser.getEmail())
-                .orElseThrow(() -> new ResourceNotFoundException("User Not Found"));
+                .orElseThrow(() -> new AppException("User Not Found"));
 
         String jwt = jwtService.generateToken(user);
         LoginResponse loginResponse = new LoginResponse();

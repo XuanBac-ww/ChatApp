@@ -1,16 +1,13 @@
 package com.example.SpringSecurity.controller;
 
-import com.example.SpringSecurity.dtos.auth.LoginResponse;
-import com.example.SpringSecurity.dtos.auth.LoginUserRequest;
-import com.example.SpringSecurity.dtos.auth.RegisterUserRequest;
+import com.example.SpringSecurity.dto.response.auth.LoginResponse;
+import com.example.SpringSecurity.dto.request.auth.LoginUserRequest;
+import com.example.SpringSecurity.dto.request.auth.RegisterUserRequest;
 import com.example.SpringSecurity.model.User;
-import com.example.SpringSecurity.response.ApiResponse;
+import com.example.SpringSecurity.dto.response.api.ApiResponse;
 import com.example.SpringSecurity.service.HistoryLogin.IHistoryLoginService;
-import com.example.SpringSecurity.service.JwtService;
 import com.example.SpringSecurity.service.auth.IAuthService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;

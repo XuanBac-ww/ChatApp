@@ -1,7 +1,7 @@
 package com.example.SpringSecurity.config;
 
 import com.example.SpringSecurity.filter.JwtAuthenticationFilter;
-import com.example.SpringSecurity.response.ApiResponse;
+import com.example.SpringSecurity.dto.response.api.ApiResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -65,7 +65,7 @@ public class SecurityConfig {
                                                    AccessDeniedHandler restAccessDeniedHandler) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
-                .cors(withDefaults())   // ✅ thêm dòng này
+                .cors(withDefaults())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(SWAGGER_WHITELIST).permitAll()
                         .requestMatchers("/auth/**").permitAll()

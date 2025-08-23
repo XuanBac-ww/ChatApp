@@ -37,6 +37,10 @@ public class JwtService {
         return generateToken(new HashMap<>(), userDetails);
     }
 
+    public Long extractUserId(String token) {
+        return extractClaim(token, claims -> claims.get("userId", Long.class));
+    }
+
     public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
         if (userDetails instanceof User user) {
             extraClaims.put("userId", user.getId());

@@ -1,6 +1,6 @@
 package com.example.SpringSecurity.exception;
 
-import com.example.SpringSecurity.response.ApiResponse;
+import com.example.SpringSecurity.dto.response.api.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -11,12 +11,25 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 
 @RestControllerAdvice
 public class GlobalHandlerException {
+
+    @ExceptionHandler(AppException.class)
+    public ResponseEntity<ApiResponse<Object>> handleAppException(Exception ex) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new ApiResponse<>(
+                      400,
+                        false,
+                        ex.getMessage(),
+                        null
+                ));
+    }
+
+
     // Lỗi chung
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Object>> handleException(Exception ex) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+        return ResponseEntity.status(HttpStatus.OK)
                 .body(new ApiResponse<>(
-                        HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                        500,
                         false,
                         ex.getMessage(),
                         null

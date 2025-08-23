@@ -1,4 +1,4 @@
-package com.example.SpringSecurity.response;
+package com.example.SpringSecurity.dto.response.api;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

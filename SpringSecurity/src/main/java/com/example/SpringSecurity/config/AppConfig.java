@@ -1,6 +1,6 @@
 package com.example.SpringSecurity.config;
 
-import com.example.SpringSecurity.exception.ResourceNotFoundException;
+import com.example.SpringSecurity.exception.AppException;
 import com.example.SpringSecurity.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -21,7 +21,7 @@ public class AppConfig {
     @Bean
     UserDetailsService userDetailsService() {
         return username -> userRepository.findByEmail(username)
-                .orElseThrow(() -> new ResourceNotFoundException("User Not Found"));
+                .orElseThrow(() -> new AppException("User Not Found"));
     }
 
     @Bean

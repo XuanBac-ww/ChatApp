@@ -1,11 +1,11 @@
 package com.example.SpringSecurity.service.HistoryLogin;
 
-import com.example.SpringSecurity.exception.ResourceNotFoundException;
+import com.example.SpringSecurity.exception.AppException;
 import com.example.SpringSecurity.model.HistoryLogin;
 import com.example.SpringSecurity.model.User;
 import com.example.SpringSecurity.repository.HistoryLoginRepository;
 import com.example.SpringSecurity.repository.UserRepository;
-import com.example.SpringSecurity.response.ApiResponse;
+import com.example.SpringSecurity.dto.response.api.ApiResponse;
 import com.example.SpringSecurity.service.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,7 +41,7 @@ public class HistoryLoginService implements IHistoryLoginService{
                 .orElseGet(HistoryLogin::new);
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+                .orElseThrow(() -> new AppException("User not found with id: " + userId));
         token.setUser(user);
         token.setExpiryDate(Instant.now().plusMillis(refreshExpiration));
         token.setToken(UUID.randomUUID().toString());

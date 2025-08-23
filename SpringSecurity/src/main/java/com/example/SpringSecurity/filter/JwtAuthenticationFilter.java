@@ -1,5 +1,6 @@
 package com.example.SpringSecurity.filter;
 
+import com.example.SpringSecurity.security.CustomUserDetails;
 import com.example.SpringSecurity.service.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -48,10 +49,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if(userEmail != null && authentication == null) {
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
 
-                if(jwtService.isTokenValid(jwt,userDetails)) {
-                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                            userDetails,null,userDetails.getAuthorities()
+                if (jwtService.isTokenValid(jwt, userDetails)) {
+                    Long userId = jwtService.extractUserId(jwt); // <-- Lấy userId từ claims
+
+                    CustomUserDetails customUserDetails = new CustomUserDetails(
+                            userId,
+                            userDetails.getUsername(),
+                            userDetails.getPassword(),
+                            userDetails.getAuthorities()
                     );
+
+                    UsernamePasswordAuthenticationToken authToken =
+                            new UsernamePasswordAuthenticationToken(
+                                    customUserDetails,
+                                    null,
+                                    customUserDetails.getAuthorities()
+                            );
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
