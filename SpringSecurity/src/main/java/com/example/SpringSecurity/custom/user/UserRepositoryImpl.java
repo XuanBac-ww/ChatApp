@@ -1,6 +1,7 @@
 package com.example.SpringSecurity.custom.user;
 
 import com.example.SpringSecurity.dto.request.auth.RegisterUserRequest;
+import com.example.SpringSecurity.enums.Role;
 import com.example.SpringSecurity.model.User;
 import com.example.SpringSecurity.repository.IUserRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ public class UserRepositoryImpl implements IUserRepositoryCustom {
                 .fullName(userRequest.getFullName())
                 .email(userRequest.getEmail())
                 .password(passwordEncoder.encode(userRequest.getPassword()))
+                .role(Role.ROLE_USER)
                 .build();
         return userRepository.save(user);
     }

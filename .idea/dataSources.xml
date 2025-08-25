@@ -1,25 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="springsecurity@localhost" uuid="33d8b24b-69b9-49ce-a1b3-a70372ab6dd5">
+    <data-source source="LOCAL" name="webchatt@localhost" uuid="c28563dc-7bb6-46a9-8094-db1bc837bfbf">
       <driver-ref>mysql.8</driver-ref>
       <synchronize>true</synchronize>
       <imported>true</imported>
       <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
-      <jdbc-url>jdbc:mysql://localhost:3306/springsecurity</jdbc-url>
-      <jdbc-additional-properties>
-        <property name="com.intellij.clouds.kubernetes.db.host.port" />
-        <property name="com.intellij.clouds.kubernetes.db.enabled" value="false" />
-        <property name="com.intellij.clouds.kubernetes.db.container.port" />
-      </jdbc-additional-properties>
-      <working-dir>$ProjectFileDir$</working-dir>
-    </data-source>
-    <data-source source="LOCAL" name="webchat@localhost" uuid="68d26b98-964e-4b93-873c-1567ac23f56a">
-      <driver-ref>mysql.8</driver-ref>
-      <synchronize>true</synchronize>
-      <imported>true</imported>
-      <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
-      <jdbc-url>jdbc:mysql://localhost:3306/webchat?allowPublicKeyRetrieval=true&amp;useSSL=false&amp;serverTimezone=Asia/Ho_Chi_Minh&amp;zeroDateTimeBehavior=convertToNull</jdbc-url>
+      <jdbc-url>jdbc:mysql://localhost:3306/webchatt?allowPublicKeyRetrieval=true&amp;useSSL=false&amp;serverTimezone=Asia/Ho_Chi_Minh&amp;zeroDateTimeBehavior=convertToNull</jdbc-url>
       <jdbc-additional-properties>
         <property name="com.intellij.clouds.kubernetes.db.host.port" />
         <property name="com.intellij.clouds.kubernetes.db.enabled" value="false" />

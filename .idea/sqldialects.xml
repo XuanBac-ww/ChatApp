@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="SqlDialectMappings">
-    <file url="file://$PROJECT_DIR$/SpringSecurity/src/main/java/com/example/SpringSecurity/model/HistoryLogin.java" dialect="GenericSQL" />
-    <file url="file://$PROJECT_DIR$/SpringSecurity/src/main/java/com/example/SpringSecurity/model/User.java" dialect="GenericSQL" />
+    <file url="file://$PROJECT_DIR$/SpringSecurity/src/main/java/com/example/SpringSecurity/model/HistoryLogin.java" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/SpringSecurity/src/main/java/com/example/SpringSecurity/model/User.java" dialect="MySQL" />
   </component>
 </project>

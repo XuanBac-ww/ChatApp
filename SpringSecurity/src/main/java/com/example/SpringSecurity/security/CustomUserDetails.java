@@ -1,10 +1,13 @@
 package com.example.SpringSecurity.security;
 
+import com.example.SpringSecurity.model.User;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.List;
 
 @Getter
 public class CustomUserDetails implements UserDetails {
@@ -19,6 +22,24 @@ public class CustomUserDetails implements UserDetails {
         this.userName = userName;
         this.password = password;
         this.authorities = authorities;
+    }
+
+    public static CustomUserDetails fromUserEntity(User user) {
+        return new CustomUserDetails(
+                user.getId(),
+                user.getFullName(),
+                user.getPassword(),
+                List.of(new SimpleGrantedAuthority(user.getRole().name()))
+        );
+    }
+
+    public CustomUserDetails withUserId(Long userId) {
+        return new CustomUserDetails(
+                userId,
+                this.getUsername(),
+                this.getPassword(),
+                this.getAuthorities()
+        );
     }
 
     @Override

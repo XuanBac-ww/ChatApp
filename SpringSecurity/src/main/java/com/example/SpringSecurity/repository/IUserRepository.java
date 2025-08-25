@@ -9,5 +9,7 @@ import java.util.Optional;
 
 @Repository
 public interface IUserRepository extends ISoftDeleteRepository<User,Long>, IUserRepositoryCustom {
-    Optional<User> findByEmail(String username);
+    Optional<User> findByEmail(String email);
+
+    Optional<User> findByFullName(String fullName);
 }

@@ -27,7 +27,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final UserDetailsService userDetailsService;
     private final JwtService jwtService;
 
-
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
                                     @NonNull HttpServletResponse response,
@@ -35,8 +34,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
         final String authHeader = request.getHeader("Authorization");
 
-        if(authHeader == null || !authHeader.startsWith("Bearer ")) {
-            filterChain.doFilter(request,response);
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);
             return;
         }
 
@@ -46,19 +45,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-            if(userEmail != null && authentication == null) {
+            if (userEmail != null && authentication == null) {
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
 
                 if (jwtService.isTokenValid(jwt, userDetails)) {
-                    Long userId = jwtService.extractUserId(jwt); // <-- Lấy userId từ claims
-
-                    CustomUserDetails customUserDetails = new CustomUserDetails(
-                            userId,
-                            userDetails.getUsername(),
-                            userDetails.getPassword(),
-                            userDetails.getAuthorities()
-                    );
-
+                    Long userId = jwtService.extractUserId(jwt);
+                    CustomUserDetails customUserDetails = ((CustomUserDetails) userDetails).withUserId(userId);
                     UsernamePasswordAuthenticationToken authToken =
                             new UsernamePasswordAuthenticationToken(
                                     customUserDetails,
@@ -69,9 +61,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
             }
-            filterChain.doFilter(request,response);
+
+            filterChain.doFilter(request, response);
         } catch (Exception ex) {
-            handlerExceptionResolver.resolveException(request,response,null,ex);
+            handlerExceptionResolver.resolveException(request, response, null, ex);
         }
     }
 

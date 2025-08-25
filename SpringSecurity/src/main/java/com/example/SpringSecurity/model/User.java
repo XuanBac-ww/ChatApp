@@ -1,5 +1,6 @@
 package com.example.SpringSecurity.model;
 
+import com.example.SpringSecurity.enums.Role;
 import com.example.SpringSecurity.model.Abstraction.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -34,5 +35,9 @@ public class User extends BaseEntity {
 
     @Column(nullable = false)
     private String password;
+
+    @Enumerated(EnumType.STRING)
+    private Role role;
+
 
 }
