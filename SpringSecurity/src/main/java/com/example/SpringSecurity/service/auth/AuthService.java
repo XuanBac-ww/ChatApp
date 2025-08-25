@@ -3,10 +3,12 @@ package com.example.SpringSecurity.service.auth;
 import com.example.SpringSecurity.dto.response.auth.LoginResponse;
 import com.example.SpringSecurity.dto.request.auth.LoginUserRequest;
 import com.example.SpringSecurity.dto.request.auth.RegisterUserRequest;
+import com.example.SpringSecurity.enums.Role;
 import com.example.SpringSecurity.exception.AppException;
 import com.example.SpringSecurity.model.User;
 import com.example.SpringSecurity.repository.IUserRepository;
 import com.example.SpringSecurity.dto.response.api.ApiResponse;
+import com.example.SpringSecurity.security.CustomUserDetails;
 import com.example.SpringSecurity.service.HistoryLogin.IHistoryLoginService;
 import com.example.SpringSecurity.service.JwtService;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -25,6 +28,7 @@ import org.springframework.util.StringUtils;
 public class AuthService implements IAuthService{
     private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
 
+    private final PasswordEncoder passwordEncoder;
     private final IUserRepository userRepository;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
@@ -53,7 +57,7 @@ public class AuthService implements IAuthService{
         return userRepository.findByEmail(registerUser.getEmail())
                 .map(u -> new ApiResponse<User>(400,false,"Email exit",null))
                 .orElseGet(() -> {
-                    User  user = userRepository.createUser(registerUser);
+                    User  user = createUser(registerUser);
                     logger.info("User created successfully with email: {}", user.getEmail());
                     return new ApiResponse<>(200,true,"Sign Up Successfully",user);
                 });
@@ -75,11 +79,31 @@ public class AuthService implements IAuthService{
         User user =  userRepository.findByEmail(loginUser.getEmail())
                 .orElseThrow(() -> new AppException("User Not Found"));
 
-        String jwt = jwtService.generateToken((UserDetails) user);
+        CustomUserDetails userDetails = CustomUserDetails.fromUserEntity(user);
+        String jwt = jwtService.generateToken(userDetails);
+
         LoginResponse loginResponse = new LoginResponse();
         loginResponse.setToken(jwt);
         loginResponse.setExpiresIn(jwtService.getExpirationTime());
         loginResponse.setRefreshToken(historyLoginService.createRefreshToken(user.getId()).getData());
-        return new ApiResponse<>(200,true,"Sign Up Successfully",loginResponse);
+
+        return new ApiResponse<>(200,true,"Sign In Successfully",loginResponse);
+    }
+
+
+    @Override
+    public User createUser(RegisterUserRequest request) {
+        return createUser(request, Role.ROLE_USER); // mặc định
+    }
+
+    @Override
+    public User createUser(RegisterUserRequest request, Role role) {
+        User user = User.builder()
+                .fullName(request.getFullName())
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .role(role)
+                .build();
+        return userRepository.save(user);
     }
 }

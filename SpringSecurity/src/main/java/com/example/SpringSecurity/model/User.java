@@ -9,7 +9,6 @@ import jakarta.persistence.Table;
 import lombok.*;
 import org.hibernate.annotations.*;
 import org.hibernate.envers.Audited;
-import org.hibernate.annotations.Where;
 
 @Entity
 @Getter
@@ -38,6 +37,4 @@ public class User extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private Role role;
-
-
 }

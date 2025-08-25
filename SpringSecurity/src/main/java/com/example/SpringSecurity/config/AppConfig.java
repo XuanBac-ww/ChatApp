@@ -1,7 +1,9 @@
 package com.example.SpringSecurity.config;
 
 import com.example.SpringSecurity.exception.AppException;
+import com.example.SpringSecurity.model.User;
 import com.example.SpringSecurity.repository.IUserRepository;
+import com.example.SpringSecurity.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,8 +22,11 @@ public class AppConfig {
 
     @Bean
     UserDetailsService userDetailsService() {
-        return username -> (org.springframework.security.core.userdetails.UserDetails) userRepository.findByEmail(username)
-                .orElseThrow(() -> new AppException("User Not Found"));
+        return username -> {
+            User user = userRepository.findByEmail(username)
+                    .orElseThrow(() -> new AppException("User Not Found"));
+            return CustomUserDetails.fromUserEntity(user);
+        };
     }
 
     @Bean

@@ -1,6 +1,6 @@
 package com.example.SpringSecurity.service;
 
-import com.example.SpringSecurity.model.User;
+import com.example.SpringSecurity.security.CustomUserDetails;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -42,9 +42,13 @@ public class JwtService {
     }
 
     public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
-        if (userDetails instanceof User user) {
-            extraClaims.put("userId", user.getId());
+        if (userDetails instanceof CustomUserDetails cud) {
+            extraClaims.put("userId", cud.getUserId());
         }
+
+        String role = userDetails.getAuthorities().iterator().next().getAuthority();
+        extraClaims.put("role", role);
+
         return buildToken(extraClaims, userDetails, jwtExpiration);
     }
 

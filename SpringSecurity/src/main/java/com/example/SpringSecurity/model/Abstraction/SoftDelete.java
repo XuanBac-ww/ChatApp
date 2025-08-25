@@ -26,5 +26,4 @@ public abstract class SoftDelete {
 
     @Column(name = "deleted_at")
     private Instant deletedAt;
-
 }

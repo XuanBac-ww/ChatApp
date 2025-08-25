@@ -1,9 +1,7 @@
 package com.example.SpringSecurity.controller;
 
-import com.example.SpringSecurity.dto.request.auth.RegisterUserRequest;
 import com.example.SpringSecurity.dto.response.api.ApiResponse;
 import com.example.SpringSecurity.dto.response.user.UserDTO;
-import com.example.SpringSecurity.model.User;
 import com.example.SpringSecurity.security.CustomUserDetails;
 import com.example.SpringSecurity.service.user.IUserService;
 import lombok.RequiredArgsConstructor;

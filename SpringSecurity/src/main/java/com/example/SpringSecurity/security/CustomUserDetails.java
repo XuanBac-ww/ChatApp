@@ -12,14 +12,14 @@ import java.util.List;
 @Getter
 public class CustomUserDetails implements UserDetails {
     private final Long userId;
-    private final String userName;
+    private final String email;
     private final String password;
     private final Collection<? extends GrantedAuthority> authorities;
 
-    public CustomUserDetails(Long userId, String userName, String password,
+    public CustomUserDetails(Long userId, String email, String password,
                              Collection<? extends GrantedAuthority> authorities) {
         this.userId = userId;
-        this.userName = userName;
+        this.email = email;
         this.password = password;
         this.authorities = authorities;
     }
@@ -27,7 +27,7 @@ public class CustomUserDetails implements UserDetails {
     public static CustomUserDetails fromUserEntity(User user) {
         return new CustomUserDetails(
                 user.getId(),
-                user.getFullName(),
+                user.getEmail(),
                 user.getPassword(),
                 List.of(new SimpleGrantedAuthority(user.getRole().name()))
         );
@@ -36,7 +36,7 @@ public class CustomUserDetails implements UserDetails {
     public CustomUserDetails withUserId(Long userId) {
         return new CustomUserDetails(
                 userId,
-                this.getUsername(),
+                this.getEmail(),
                 this.getPassword(),
                 this.getAuthorities()
         );
@@ -54,7 +54,7 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public String getUsername() {
-        return userName;
+        return email;
     }
 
     @Override
