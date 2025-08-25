@@ -1,23 +1,26 @@
 package com.example.SpringSecurity.model;
 
+import com.example.SpringSecurity.model.Abstraction.BaseEntity;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.Table;
+import lombok.*;
+import org.hibernate.annotations.*;
+import org.hibernate.envers.Audited;
 
 import java.time.Instant;
 
 @Entity
 @Builder
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class HistoryLogin {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+@Table(name = "HistoryLogin")
+@Audited
+@SQLDelete(sql = "UPDATE HistoryLogin SET deleted = true, deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
+@SQLRestriction("deleted = false")
+@Filter(name = "deletedFilter", condition = "deleted = :isDeleted")
+public class HistoryLogin extends BaseEntity {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", referencedColumnName = "id")

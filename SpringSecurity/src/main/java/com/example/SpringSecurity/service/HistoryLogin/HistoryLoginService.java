@@ -3,13 +3,14 @@ package com.example.SpringSecurity.service.HistoryLogin;
 import com.example.SpringSecurity.exception.AppException;
 import com.example.SpringSecurity.model.HistoryLogin;
 import com.example.SpringSecurity.model.User;
-import com.example.SpringSecurity.repository.HistoryLoginRepository;
-import com.example.SpringSecurity.repository.UserRepository;
+import com.example.SpringSecurity.repository.IHistoryLoginRepository;
+import com.example.SpringSecurity.repository.IUserRepository;
 import com.example.SpringSecurity.dto.response.api.ApiResponse;
 import com.example.SpringSecurity.service.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,8 +27,8 @@ public class HistoryLoginService implements IHistoryLoginService{
     private Long refreshExpiration;
 
     private final JwtService jwtService;
-    private final HistoryLoginRepository historyLoginRepository;
-    private final UserRepository userRepository;
+    private final IHistoryLoginRepository historyLoginRepository;
+    private final IUserRepository userRepository;
 
     @Transactional
     @Override
@@ -72,7 +73,7 @@ public class HistoryLoginService implements IHistoryLoginService{
             historyLoginRepository.delete(refreshToken);
             return new ApiResponse<>(401, false, "Token expired", null);
         }
-        return new ApiResponse<>(400,true,"RefreshToken Successfully",jwtService.generateToken(refreshToken.getUser()));
+        return new ApiResponse<>(400,true,"RefreshToken Successfully",jwtService.generateToken((UserDetails) refreshToken.getUser()));
     }
 
 }

@@ -5,10 +5,12 @@ import com.example.SpringSecurity.dto.response.api.ApiResponse;
 import com.example.SpringSecurity.dto.response.user.UserDTO;
 import com.example.SpringSecurity.exception.AppException;
 import com.example.SpringSecurity.model.User;
-import com.example.SpringSecurity.repository.UserRepository;
+import com.example.SpringSecurity.repository.IUserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Slf4j
 @Service
@@ -16,18 +18,28 @@ import org.springframework.stereotype.Service;
 public class UserService implements IUserService {
 
     private final UserMapper userMapper;
-    private final UserRepository userRepository;
+    private final IUserRepository userRepository;
 
     @Override
     public ApiResponse<UserDTO> getUserInfo(Long userId) {
-        log.info("Get info userId starting {} ", userId);
+        log.info("Get info userId is {} starting ", userId);
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException("User Not Found"));
 
         log.info("Get info userId starting {} {} ", user.getFullName(),user.getEmail());
 
-        UserDTO userDTO = userMapper.convertToUserDTo(user);
-        log.info("Get info userId starting {} {} ", userDTO.getFullName(),userDTO.getEmail());
+        UserDTO userDTO = userMapper.convertToUserDTO(user);
+        log.info("Get info userId is {} {} starting ", userDTO.getFullName(),userDTO.getEmail());
         return new ApiResponse<>(200,true,"Get Info successfully",userDTO);
+    }
+
+    @Override
+    public ApiResponse<List<UserDTO>>getAllUser() {
+        log.info("Get info all user is starting ");
+
+        List<UserDTO> userDTO = userRepository.findAll()
+                .stream().map(userMapper::convertToUserDTO)
+                .toList();
+        return new ApiResponse<>(200,true,"Get All user Info successfully",userDTO);
     }
 }

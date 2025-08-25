@@ -1,7 +1,7 @@
 package com.example.SpringSecurity.config;
 
 import com.example.SpringSecurity.exception.AppException;
-import com.example.SpringSecurity.repository.UserRepository;
+import com.example.SpringSecurity.repository.IUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,11 +16,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 @RequiredArgsConstructor
 public class AppConfig {
 
-    private final UserRepository userRepository;
+    private final IUserRepository userRepository;
 
     @Bean
     UserDetailsService userDetailsService() {
-        return username -> userRepository.findByEmail(username)
+        return username -> (org.springframework.security.core.userdetails.UserDetails) userRepository.findByEmail(username)
                 .orElseThrow(() -> new AppException("User Not Found"));
     }
 

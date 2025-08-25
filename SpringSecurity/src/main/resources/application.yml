@@ -3,7 +3,7 @@ spring:
     name: SpringSecurity
 
   datasource:
-    url: jdbc:mysql://localhost:3306/springsecurity
+    url: jdbc:mysql://localhost:3306/webchat?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=Asia/Ho_Chi_Minh&zeroDateTimeBehavior=convertToNull
     username: root
     password: ***REMOVED-DB-PASSWORD***
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -15,7 +15,11 @@ spring:
     properties:
       hibernate:
         format_sql: true
-
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        globally_quoted_identifiers: false
+        jdbc:
+          time_zone: Asia/Ho_Chi_Minh
+    database-platform: org.hibernate.dialect.MySQL8Dialect
 server:
   port: 8080
 
