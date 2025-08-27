@@ -16,7 +16,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -44,12 +43,6 @@ public class UserService implements IUserService {
     @Override
     public ApiResponse<UserDTO> updateUser(UserUpdateRequest userUpdateRequest, Long userId) {
         log.info("Update Info UserId is {}", userId);
-
-        if (!StringUtils.hasText(userUpdateRequest.getFullName())) {
-            log.info("Signup validation failed: fullName is empty, email={}", userUpdateRequest.getFullName());
-            return new ApiResponse<>(400, false, "FullName is required", null);
-        }
-
         User user = userRepository.findById(userId)
                 .map(u -> {
                     u.setFullName(userUpdateRequest.getFullName());
@@ -100,7 +93,7 @@ public class UserService implements IUserService {
                 .stream()
                 .map(userMapper::convertToUserDTO)
                 .toList();
-        return new PageResponse<>(200, true, "Retrieved deleted users succesfully",
+        return new PageResponse<>(200, true, "Retrieved deleted users successfully",
                 userDTOs, deletedUserPage.getNumber(), deletedUserPage.getSize(), deletedUserPage.getTotalElements(),
                 deletedUserPage.getTotalPages(), deletedUserPage.isLast());
     }

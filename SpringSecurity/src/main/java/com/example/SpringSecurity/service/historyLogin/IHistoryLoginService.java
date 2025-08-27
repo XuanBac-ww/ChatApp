@@ -1,4 +1,4 @@
-package com.example.SpringSecurity.service.HistoryLogin;
+package com.example.SpringSecurity.service.historyLogin;
 
 import com.example.SpringSecurity.dto.response.api.ApiResponse;
 import org.springframework.transaction.annotation.Transactional;

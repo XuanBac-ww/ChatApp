@@ -5,8 +5,9 @@ import com.example.SpringSecurity.dto.request.auth.LoginUserRequest;
 import com.example.SpringSecurity.dto.request.auth.RegisterUserRequest;
 import com.example.SpringSecurity.model.User;
 import com.example.SpringSecurity.dto.response.api.ApiResponse;
-import com.example.SpringSecurity.service.HistoryLogin.IHistoryLoginService;
+import com.example.SpringSecurity.service.historyLogin.IHistoryLoginService;
 import com.example.SpringSecurity.service.auth.IAuthService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,12 +24,12 @@ public class AuthController {
     private final IHistoryLoginService historyLoginService;
 
     @PostMapping("/signup")
-    public ApiResponse<User> register(@RequestBody RegisterUserRequest registerUser) {
+    public ApiResponse<User> register(@RequestBody @Valid RegisterUserRequest registerUser) {
         return authService.signup(registerUser);
     }
 
     @PostMapping("/login")
-    public ApiResponse<LoginResponse> login(@RequestBody LoginUserRequest loginUser) {
+    public ApiResponse<LoginResponse> login(@RequestBody @Valid LoginUserRequest loginUser) {
         return authService.authenticate(loginUser);
     }
 

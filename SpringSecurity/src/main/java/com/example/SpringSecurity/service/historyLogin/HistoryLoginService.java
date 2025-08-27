@@ -1,4 +1,4 @@
-package com.example.SpringSecurity.service.HistoryLogin;
+package com.example.SpringSecurity.service.historyLogin;
 
 import com.example.SpringSecurity.exception.AppException;
 import com.example.SpringSecurity.model.HistoryLogin;
@@ -47,7 +47,7 @@ public class HistoryLoginService implements IHistoryLoginService{
         token.setExpiryDate(Instant.now().plusMillis(refreshExpiration));
         token.setToken(UUID.randomUUID().toString());
         historyLoginRepository.save(token);
-        return new ApiResponse<>(400,false,"RefreshToken Successfully",token.getToken());
+        return new ApiResponse<>(200,true,"RefreshToken Successfully",token.getToken());
     }
 
     public boolean isTokenExpired(HistoryLogin token) {
@@ -73,7 +73,7 @@ public class HistoryLoginService implements IHistoryLoginService{
             historyLoginRepository.delete(refreshToken);
             return new ApiResponse<>(401, false, "Token expired", null);
         }
-        return new ApiResponse<>(400,true,"RefreshToken Successfully",jwtService.generateToken((UserDetails) refreshToken.getUser()));
+        return new ApiResponse<>(200,true,"RefreshToken Successfully",jwtService.generateToken((UserDetails) refreshToken.getUser()));
     }
 
 }
