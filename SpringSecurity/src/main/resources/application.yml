@@ -2,7 +2,7 @@ spring:
   application:
     name: SpringSecurity
   datasource:
-    url: jdbc:mysql://localhost:3306/webchat?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=Asia/Ho_Chi_Minh&zeroDateTimeBehavior=convertToNull
+    url: jdbc:mysql://localhost:3306/chat?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=Asia/Ho_Chi_Minh&zeroDateTimeBehavior=convertToNull
     username: root
     password: ***REMOVED-DB-PASSWORD***
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -11,7 +11,9 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+
     properties:
+      org.hibernate.envers.store_data_at_delete: true
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.MySQL8Dialect

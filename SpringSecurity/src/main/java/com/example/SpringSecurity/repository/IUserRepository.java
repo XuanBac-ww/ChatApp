@@ -3,7 +3,7 @@ package com.example.SpringSecurity.repository;
 import com.example.SpringSecurity.enums.Role;
 import com.example.SpringSecurity.model.User;
 import com.example.SpringSecurity.repository.Abstraction.ISoftDeleteRepository;
-import jakarta.validation.constraints.Email;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;

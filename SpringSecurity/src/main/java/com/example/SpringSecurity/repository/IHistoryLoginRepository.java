@@ -1,13 +1,13 @@
 package com.example.SpringSecurity.repository;
 
 import com.example.SpringSecurity.model.HistoryLogin;
-import com.example.SpringSecurity.repository.Abstraction.ISoftDeleteRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 @Repository
-public interface IHistoryLoginRepository extends ISoftDeleteRepository<HistoryLogin,Long> {
+public interface IHistoryLoginRepository extends JpaRepository<HistoryLogin,Long> {
 
     Optional<HistoryLogin> findByToken(String token);
 

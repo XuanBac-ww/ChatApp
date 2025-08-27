@@ -8,7 +8,6 @@ import lombok.Setter;
 import org.hibernate.annotations.FilterDef;
 import org.hibernate.annotations.ParamDef;
 import org.hibernate.envers.Audited;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
@@ -18,8 +17,8 @@ import java.time.Instant;
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
 @FilterDef(name = "deletedFilter", parameters = @ParamDef(name = "isDeleted", type = Boolean.class))
-@Audited
-public abstract class SoftDelete {
+
+public abstract class SoftDelete extends BaseEntity{
 
     @Column(name = "deleted",nullable = false)
     private boolean deleted = false;

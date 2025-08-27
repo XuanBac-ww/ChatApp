@@ -2,6 +2,7 @@ package com.example.SpringSecurity.model;
 
 import com.example.SpringSecurity.enums.Role;
 import com.example.SpringSecurity.model.Abstraction.BaseEntity;
+import com.example.SpringSecurity.model.Abstraction.SoftDelete;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.persistence.CascadeType;
@@ -21,7 +22,7 @@ import org.hibernate.envers.Audited;
 @SQLDelete(sql = "UPDATE users SET deleted = true, deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
 @SQLRestriction("deleted = false")
 @Filter(name = "deletedFilter", condition = "deleted = :isDeleted")
-public class User extends BaseEntity {
+public class User extends SoftDelete {
     @Column(nullable = false)
     private String fullName;
 

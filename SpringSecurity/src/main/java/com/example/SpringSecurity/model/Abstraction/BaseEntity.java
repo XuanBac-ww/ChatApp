@@ -16,8 +16,8 @@ import java.time.Instant;
 @Setter
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
-@Audited
-public abstract class BaseEntity extends SoftDelete {
+
+public abstract class BaseEntity  {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

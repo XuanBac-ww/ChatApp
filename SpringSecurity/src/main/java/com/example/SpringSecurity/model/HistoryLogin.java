@@ -15,11 +15,7 @@ import java.time.Instant;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "HistoryLogin")
-
-@SQLDelete(sql = "UPDATE HistoryLogin SET deleted = true, deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
-@SQLRestriction("deleted = false")
-@Filter(name = "deletedFilter", condition = "deleted = :isDeleted")
+@Table(name = "history_login")
 public class HistoryLogin extends BaseEntity {
 
     @OneToOne(fetch = FetchType.LAZY)
