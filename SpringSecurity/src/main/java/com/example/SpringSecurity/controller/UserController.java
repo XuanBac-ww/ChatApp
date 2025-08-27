@@ -7,6 +7,7 @@ import com.example.SpringSecurity.dto.response.user.UserDTO;
 import com.example.SpringSecurity.security.CustomUserDetails;
 import com.example.SpringSecurity.service.user.IUserService;
 import lombok.RequiredArgsConstructor;
+import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -39,7 +40,7 @@ public class UserController {
 
     @PreAuthorize("hasRole('USER')")
     @PutMapping("/update")
-    public ApiResponse<UserDTO> updateAccount(@RequestBody UserUpdateRequest userUpdateRequest,
+    public ApiResponse<UserDTO> updateAccount(@RequestBody @Valid UserUpdateRequest userUpdateRequest,
                                               @AuthenticationPrincipal CustomUserDetails currentUser) {
         return userService.updateUser(userUpdateRequest,currentUser.getUserId());
     }

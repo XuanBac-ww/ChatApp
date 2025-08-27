@@ -21,7 +21,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 @RequiredArgsConstructor
 @Service
@@ -40,22 +39,7 @@ public class AuthService implements IAuthService{
     @Transactional
     public ApiResponse<User> signup(RegisterUserRequest registerUser) {
         logger.info("Start signup with email: {}", registerUser.getEmail());
-        if(!StringUtils.hasText(registerUser.getFullName())) {
-            log.info("Signup validation failed: fullName is empty, email={}", registerUser.getFullName());
-            return new ApiResponse<>(400,false,"FullName is required",null);
-        }
 
-        if (!StringUtils.hasText(registerUser.getEmail())) {
-            log.info("Signup validation failed: Email is empty, fullName={}", registerUser.getEmail());
-
-            return new ApiResponse<>(400,false,"Email is required",null);
-        }
-
-        if (!StringUtils.hasText(registerUser.getPassword())) {
-            log.info("Signup validation failed: Password is empty, email={}", registerUser.getPassword());
-
-            return new ApiResponse<>(400,false,"Password is required",null);
-        }
 
         return userRepository.findByEmailIncludeDeleted(registerUser.getEmail())
                 .map(user -> {
@@ -76,12 +60,6 @@ public class AuthService implements IAuthService{
     }
     @Override
     public ApiResponse<LoginResponse> authenticate(LoginUserRequest loginUser) {
-        if(!StringUtils.hasText(loginUser.getEmail())) {
-            return new ApiResponse<>(400,false,"Email is required",null);
-        }
-        if(!StringUtils.hasText(loginUser.getPassword())) {
-            return new ApiResponse<>(400,false,"Password is required",null);
-        }
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         loginUser.getEmail(),

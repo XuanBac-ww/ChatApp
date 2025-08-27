@@ -1,0 +1,14 @@
+spring:
+  config:
+    activate:
+      on-profile: dev
+  datasource:
+    url: ${DB_URL:jdbc:mysql://dev-host:3306/chat?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=Asia/Ho_Chi_Minh&zeroDateTimeBehavior=convertToNull}
+    username: ${DB_USERNAME:dev_user}
+    password: ${DB_PASSWORD:dev_password}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+

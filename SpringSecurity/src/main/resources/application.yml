@@ -1,17 +1,9 @@
 spring:
   application:
     name: SpringSecurity
-  datasource:
-    url: jdbc:mysql://localhost:3306/chat?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=Asia/Ho_Chi_Minh&zeroDateTimeBehavior=convertToNull
-    username: root
-    password: ***REMOVED-DB-PASSWORD***
-    driver-class-name: com.mysql.cj.jdbc.Driver
 
+# Shared defaults (apply to all profiles unless overridden below)
   jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: true
-
     properties:
       org.hibernate.envers.store_data_at_delete: true
       hibernate:
@@ -21,11 +13,12 @@ spring:
         jdbc:
           time_zone: Asia/Ho_Chi_Minh
     database-platform: org.hibernate.dialect.MySQL8Dialect
+
 server:
-  port: 8080
+  port: ${PORT:8080}
 
 security:
   jwt:
-    secret-key: ***REMOVED-JWT-SECRET***
-    expiration-time: 60000
-    refreshExpirationMs: 604800000
+    secret-key: ${JWT_SECRET:***REMOVED-JWT-SECRET***}
+    expiration-time: ${JWT_EXPIRATION:60000}
+    refreshExpirationMs: ${JWT_REFRESH_EXPIRATION:604800000}
