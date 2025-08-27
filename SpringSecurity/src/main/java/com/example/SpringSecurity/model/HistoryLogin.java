@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import jakarta.persistence.Table;
 import lombok.*;
 import org.hibernate.annotations.*;
-import org.hibernate.envers.Audited;
+
 
 import java.time.Instant;
 
@@ -16,7 +16,7 @@ import java.time.Instant;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "HistoryLogin")
-@Audited
+
 @SQLDelete(sql = "UPDATE HistoryLogin SET deleted = true, deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
 @SQLRestriction("deleted = false")
 @Filter(name = "deletedFilter", condition = "deleted = :isDeleted")

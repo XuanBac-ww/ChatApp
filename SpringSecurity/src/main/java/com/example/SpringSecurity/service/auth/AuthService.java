@@ -11,15 +11,16 @@ import com.example.SpringSecurity.dto.response.api.ApiResponse;
 import com.example.SpringSecurity.security.CustomUserDetails;
 import com.example.SpringSecurity.service.HistoryLogin.IHistoryLoginService;
 import com.example.SpringSecurity.service.JwtService;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 @RequiredArgsConstructor
@@ -33,33 +34,44 @@ public class AuthService implements IAuthService{
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final IHistoryLoginService historyLoginService;
+    private final EntityManager entityManager;
 
     @Override
+    @Transactional
     public ApiResponse<User> signup(RegisterUserRequest registerUser) {
         logger.info("Start signup with email: {}", registerUser.getEmail());
         if(!StringUtils.hasText(registerUser.getFullName())) {
-            log.info("Signup validation failed: fullName is empty, email={}", registerUser.getEmail());
+            log.info("Signup validation failed: fullName is empty, email={}", registerUser.getFullName());
             return new ApiResponse<>(400,false,"FullName is required",null);
         }
 
         if (!StringUtils.hasText(registerUser.getEmail())) {
-            log.info("Signup validation failed: Email is empty, fullName={}", registerUser.getFullName());
+            log.info("Signup validation failed: Email is empty, fullName={}", registerUser.getEmail());
 
             return new ApiResponse<>(400,false,"Email is required",null);
         }
 
         if (!StringUtils.hasText(registerUser.getPassword())) {
-            log.info("Signup validation failed: Password is empty, email={}", registerUser.getEmail());
+            log.info("Signup validation failed: Password is empty, email={}", registerUser.getPassword());
 
             return new ApiResponse<>(400,false,"Password is required",null);
         }
 
-        return userRepository.findByEmail(registerUser.getEmail())
-                .map(u -> new ApiResponse<User>(400,false,"Email exit",null))
+        return userRepository.findByEmailIncludeDeleted(registerUser.getEmail())
+                .map(user -> {
+                    if (user.isDeleted()) {
+                        userRepository.restore(user.getId());
+                        entityManager.refresh(user);
+                        user.setFullName(registerUser.getFullName());
+                        user.setPassword(passwordEncoder.encode(registerUser.getPassword()));
+                        return new ApiResponse<>(200, true, "Sign Up Successfully", user);
+                    } else {
+                        return new ApiResponse<User>(400, false, "Email already exists", null);
+                    }
+                })
                 .orElseGet(() -> {
-                    User  user = createUser(registerUser);
-                    logger.info("User created successfully with email: {}", user.getEmail());
-                    return new ApiResponse<>(200,true,"Sign Up Successfully",user);
+                    User newUser = createUser(registerUser);
+                    return new ApiResponse<>(200, true, "Sign Up Successfully",newUser);
                 });
     }
     @Override
@@ -93,7 +105,7 @@ public class AuthService implements IAuthService{
 
     @Override
     public User createUser(RegisterUserRequest request) {
-        return createUser(request, Role.ROLE_USER); // mặc định
+        return createUser(request, Role.ROLE_USER);
     }
 
     @Override

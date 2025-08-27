@@ -29,7 +29,7 @@ public class User extends BaseEntity {
     @JsonIgnore
     private HistoryLogin historyLogin;
 
-    @Column(unique = true, length = 100, nullable = false)
+    @Column(length = 100, nullable = false)
     private String email;
 
     @Column(nullable = false)

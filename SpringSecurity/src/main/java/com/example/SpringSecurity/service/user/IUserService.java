@@ -1,12 +1,22 @@
 package com.example.SpringSecurity.service.user;
 
+import com.example.SpringSecurity.dto.request.user.UserUpdateRequest;
 import com.example.SpringSecurity.dto.response.api.ApiResponse;
+import com.example.SpringSecurity.dto.response.api.PageResponse;
 import com.example.SpringSecurity.dto.response.user.UserDTO;
-
-import java.util.List;
+import org.springframework.transaction.annotation.Transactional;
 
 public interface IUserService {
     ApiResponse<UserDTO> getUserInfo(Long userId);
 
-    ApiResponse<List<UserDTO>>getAllUser();
+    @Transactional
+    ApiResponse<UserDTO> updateUser(UserUpdateRequest userUpdateRequest, Long userId);
+
+    PageResponse<UserDTO> getAllUser(int page, int size);
+
+    @Transactional
+    ApiResponse<?> deleteUser(Long userId);
+
+
+    PageResponse<UserDTO> getDeletedUsers(int page, int size);
 }

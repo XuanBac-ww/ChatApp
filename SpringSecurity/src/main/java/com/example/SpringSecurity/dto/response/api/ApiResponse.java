@@ -1,15 +1,16 @@
 package com.example.SpringSecurity.dto.response.api;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.example.SpringSecurity.dto.response.api.abstraction.BaseResponse;
+import lombok.*;
 
-@Data
-@AllArgsConstructor
+@Getter
+@Setter
 @NoArgsConstructor
-public class ApiResponse<T> {
-    private int status;
-    private boolean success;
-    private String message;
+public class ApiResponse<T> extends BaseResponse {
     private T data;
+
+    public ApiResponse(int status,boolean success,String message,T data) {
+        super(status,success,message);
+        this.data = data;
+    }
 }
