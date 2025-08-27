@@ -11,6 +11,8 @@ import lombok.*;
 import org.hibernate.annotations.*;
 import org.hibernate.envers.Audited;
 
+import java.util.List;
+
 @Entity
 @Getter
 @Setter
@@ -38,4 +40,10 @@ public class User extends SoftDelete {
 
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    @OneToMany(mappedBy = "user")
+    private List<Friendship> friendships;
+
+    @OneToMany(mappedBy = "sender")
+    private List<Message> messages;
 }
