@@ -43,8 +43,7 @@ public class User extends SoftDelete {
 
     @Enumerated(EnumType.STRING)
     private Role role;
-    @OneToMany(mappedBy = "user")
-    private List<Friendship> friendships;
+
 //
 //    @OneToMany(mappedBy = "sender")
 //    private List<Message> messages;
