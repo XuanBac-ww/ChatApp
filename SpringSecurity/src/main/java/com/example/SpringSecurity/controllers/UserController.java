@@ -35,6 +35,7 @@ public class UserController {
         return userService.getAllUser(page,size);
     }
 
+    @RateLimit(limit = 5,timeWindowSeconds = 60)
     @PreAuthorize("hasRole('USER')")
     @DeleteMapping("/delete-account")
     public ApiResponse<?> deleteAccount(@AuthenticationPrincipal CustomUserDetails currentUser) {
@@ -43,6 +44,7 @@ public class UserController {
 
     @PreAuthorize("hasRole('USER')")
     @PutMapping("/update-account")
+    @RateLimit(limit = 5,timeWindowSeconds = 60)
     public ApiResponse<UserDTO> updateAccount(@RequestBody @Valid UserUpdateRequest userUpdateRequest,
                                               @AuthenticationPrincipal CustomUserDetails currentUser) {
         return userService.updateUser(userUpdateRequest,currentUser.getUserId());
@@ -50,6 +52,7 @@ public class UserController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/all/deleted")
+    @RateLimit(limit = 5,timeWindowSeconds = 60)
     public PageResponse<UserDTO> getAllDeletedUser( @RequestParam(defaultValue = "0") int page,
                                              @RequestParam(defaultValue = "10") int size) {
         return userService.getDeletedUsers(page,size);
