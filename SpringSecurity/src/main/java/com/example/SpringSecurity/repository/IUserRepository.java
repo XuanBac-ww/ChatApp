@@ -15,6 +15,7 @@ import java.util.Optional;
 @Repository
 public interface IUserRepository extends ISoftDeleteRepository<User,Long> {
     Optional<User> findByEmail(String email);
+    Optional<User> findByNumberPhone(String numberPhone);
 
     @Query("SELECT u FROM User u WHERE u.deleted = false AND u.role = :role")
     Page<User> findActiveByRole(@Param("role") Role role, Pageable pageable);

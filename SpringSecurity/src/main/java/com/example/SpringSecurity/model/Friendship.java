@@ -14,13 +14,13 @@ import lombok.*;
 @AllArgsConstructor
 public class Friendship extends BaseEntity {
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "requester_id", nullable = false)
+    private User requester;
 
-    @ManyToOne
-    @JoinColumn(name = "friend_id")
-    private User friend;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "addressee_id", nullable = false)
+    private User addressee;
 
     @Enumerated(EnumType.STRING)
     private FriendshipStatus friendshipStatus;

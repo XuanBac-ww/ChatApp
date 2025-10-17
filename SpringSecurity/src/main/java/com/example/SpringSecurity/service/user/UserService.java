@@ -70,9 +70,16 @@ public class UserService implements IUserService {
                 .stream()
                 .map(userMapper::convertToUserDTO)
                 .toList();
-        return new PageResponse<>(200, true, "Get All user Info successfully", userDTO,
-                userPage.getNumber(), userPage.getSize(), userPage.getTotalElements(),
-                userPage.getTotalPages(), userPage.isLast());
+        return new PageResponse<>(
+                200,
+                true,
+                "Get All user Info successfully",
+                userDTO,
+                userPage.getNumber(),
+                userPage.getSize(),
+                userPage.getTotalElements(),
+                userPage.getTotalPages(),
+                userPage.isLast());
     }
 
 

@@ -30,8 +30,8 @@ public class UserController {
     @RateLimit(limit = 5,timeWindowSeconds = 60)
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/all")
-    public PageResponse<UserDTO> getAllUser( @RequestParam(defaultValue = "0") int page,
-                                                   @RequestParam(defaultValue = "10") int size) {
+    public PageResponse<UserDTO> getAllUser(@RequestParam(defaultValue = "0") int page,
+                                            @RequestParam(defaultValue = "10") int size) {
         return userService.getAllUser(page,size);
     }
 
@@ -53,8 +53,8 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/all/deleted")
     @RateLimit(limit = 5,timeWindowSeconds = 60)
-    public PageResponse<UserDTO> getAllDeletedUser( @RequestParam(defaultValue = "0") int page,
-                                             @RequestParam(defaultValue = "10") int size) {
+    public PageResponse<UserDTO> getAllDeletedUser(@RequestParam(defaultValue = "0") int page,
+                                                   @RequestParam(defaultValue = "10") int size) {
         return userService.getDeletedUsers(page,size);
     }
 

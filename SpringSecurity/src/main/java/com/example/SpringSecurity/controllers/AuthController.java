@@ -28,9 +28,9 @@ public class AuthController {
     private final IHistoryLoginService historyLoginService;
     private final IVerifyOTPService verifyOTPService;
 
+
     @PostMapping("/signup")
     @RateLimit(limit = 5,timeWindowSeconds = 60)
-
     public ApiResponse<User> register(@RequestBody @Valid RegisterUserRequest registerUser) {
         return authService.signup(registerUser);
     }
