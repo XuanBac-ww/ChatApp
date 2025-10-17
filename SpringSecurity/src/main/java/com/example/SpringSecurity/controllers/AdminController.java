@@ -1,4 +1,4 @@
-package com.example.SpringSecurity.controller;
+package com.example.SpringSecurity.controllers;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RequestMapping;

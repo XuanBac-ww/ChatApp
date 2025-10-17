@@ -1,7 +1,6 @@
 package com.example.SpringSecurity.model;
 
 import com.example.SpringSecurity.enums.Role;
-import com.example.SpringSecurity.model.Abstraction.BaseEntity;
 import com.example.SpringSecurity.model.Abstraction.SoftDelete;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -11,7 +10,6 @@ import lombok.*;
 import org.hibernate.annotations.*;
 import org.hibernate.envers.Audited;
 
-import java.util.List;
 
 @Entity
 @Getter
@@ -35,15 +33,22 @@ public class User extends SoftDelete {
     @Column(length = 100, nullable = false)
     private String email;
 
+    @Column(length = 10, nullable = false)
+    private String numberPhone;
+
     @Column(nullable = false)
     private String password;
 
     @Enumerated(EnumType.STRING)
     private Role role;
+//    @OneToMany(mappedBy = "user")
+//    private List<Friendship> friendships;
+//
+//    @OneToMany(mappedBy = "sender")
+//    private List<Message> messages;
 
-    @OneToMany(mappedBy = "user")
-    private List<Friendship> friendships;
 
-    @OneToMany(mappedBy = "sender")
-    private List<Message> messages;
+    private Boolean active = false;
+
+
 }

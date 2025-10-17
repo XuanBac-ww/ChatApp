@@ -11,6 +11,8 @@ import com.example.SpringSecurity.model.User;
 import com.example.SpringSecurity.repository.IUserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -29,6 +31,7 @@ public class UserService implements IUserService {
     private final IUserRepository userRepository;
 
     @Override
+    @Cacheable(value = "user",key = "#userId")
     public ApiResponse<UserDTO> getUserInfo(Long userId) {
         log.info("Get info userId is {} starting ", userId);
         User user = userRepository.findById(userId)
@@ -41,11 +44,13 @@ public class UserService implements IUserService {
 
     @Transactional
     @Override
+    @CachePut(value = "user",key = "#userId")
     public ApiResponse<UserDTO> updateUser(UserUpdateRequest userUpdateRequest, Long userId) {
         log.info("Update Info UserId is {}", userId);
         User user = userRepository.findById(userId)
                 .map(u -> {
                     u.setFullName(userUpdateRequest.getFullName());
+                    u.setNumberPhone(userUpdateRequest.getNumberPhone());
                     return userRepository.save(u);
                 })
                 .orElseThrow(() -> new AppException("User not found with id: " + userId));
@@ -56,6 +61,7 @@ public class UserService implements IUserService {
 
     // Tim tat ca entity chua bi xoa mem
     @Override
+    @Cacheable(value = "userAll",key = "#user")
     public PageResponse<UserDTO> getAllUser(int page, int size) {
         log.info("Get info all user is starting ");
         Pageable pageable = PageRequest.of(page, size);

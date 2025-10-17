@@ -23,8 +23,8 @@ public class DataInitializer implements CommandLineRunner {
             RegisterUserRequest request = new RegisterUserRequest();
             request.setFullName("Administrator");
             request.setEmail("admin@gmail.com");
-            request.setPassword("123456a");
-            authService.createUser(request, Role.ROLE_ADMIN); // tạo admin
+            request.setPassword("123");
+            authService.createUser(request, Role.ROLE_ADMIN);
             log.info("Create ADMIN Account successfully {} ", request.getEmail());
         }
     }

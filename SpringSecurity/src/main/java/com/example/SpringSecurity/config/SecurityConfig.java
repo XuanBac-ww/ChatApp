@@ -73,6 +73,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(SWAGGER_WHITELIST).permitAll()
                         .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/ws/**").permitAll()
                         .anyRequest().permitAll()
                 )
                 .exceptionHandling(ex -> ex

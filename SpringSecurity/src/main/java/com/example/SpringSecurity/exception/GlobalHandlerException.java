@@ -93,4 +93,16 @@ public class GlobalHandlerException {
                         errors
                 ));
     }
+
+    @ExceptionHandler(RateLimitExceedException.class)
+    public ResponseEntity<ApiResponse<Object>> handleRateLimitExceedException(RateLimitExceedException rateLimitExceedException) {
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                .body(new ApiResponse<>(
+                        HttpStatus.TOO_MANY_REQUESTS.value(),
+                        false,
+                        "So many request just wait a minute",
+                        null
+                ));
+    }
+
 }
