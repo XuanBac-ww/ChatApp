@@ -4,6 +4,8 @@ package com.example.SpringSecurity.service.friendship;
 import com.example.SpringSecurity.dto.request.user.NumberPhoneRequest;
 import com.example.SpringSecurity.dto.response.api.ApiResponse;
 import com.example.SpringSecurity.dto.response.api.PageResponse;
+import com.example.SpringSecurity.dto.response.friend.FriendDTO;
+import com.example.SpringSecurity.dto.response.friend.FriendRequestResponse;
 import com.example.SpringSecurity.enums.FriendshipStatus;
 import com.example.SpringSecurity.exception.AppException;
 import com.example.SpringSecurity.model.Friendship;
@@ -11,6 +13,8 @@ import com.example.SpringSecurity.model.User;
 import com.example.SpringSecurity.repository.IFriendshipRepository;
 import com.example.SpringSecurity.repository.IUserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -18,12 +22,14 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class FriendshipService implements IFriendshipService {
     private final IUserRepository userRepository;
     private final IFriendshipRepository friendshipRepository;
     @Override
+    @Cacheable(value = "sendAddRequest",key = "#userId")
     public ApiResponse<?> sendAddFriend(Long senderId, NumberPhoneRequest numberPhoneRequest) {
         User sender = userRepository.findById(senderId)
                 .orElseThrow(() -> new AppException("User Not Found"));
@@ -80,7 +86,9 @@ public class FriendshipService implements IFriendshipService {
     }
 
     @Override
+    @Cacheable(value = "AllFriend",key = "#userId")
     public PageResponse<?> getAllFriend(Long userId, int page, int size) {
+        log.info("");
         User currentUser = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException("User Not Found"));
         Pageable pageable = PageRequest.of(page, size);
@@ -90,13 +98,18 @@ public class FriendshipService implements IFriendshipService {
                 pageable
         );
 
-        List<User> friends = pageOfFriendships.getContent().stream()
+        List<FriendDTO> friends = pageOfFriendships.getContent().stream()
                 .map(friendship -> {
+                    User friendEntity;
                     if(friendship.getRequester().getId().equals(currentUser.getId())) {
-                        return friendship.getAddressee();
+                        friendEntity = friendship.getAddressee();
                     } else {
-                        return friendship.getRequester();
+                        friendEntity = friendship.getRequester();
                     }
+                    return new FriendDTO(
+                            friendEntity.getId(),
+                            friendEntity.getFullName()
+                    );
                 })
                 .toList();
         return new PageResponse<>(
@@ -113,6 +126,7 @@ public class FriendshipService implements IFriendshipService {
     }
 
     @Override
+    @Cacheable(value = "AllRequest",key = "#userId")
     public PageResponse<?> getPendingFriendRequest(Long userId, int page, int size) {
         User currentUser = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException("User Not Found"));
@@ -123,14 +137,21 @@ public class FriendshipService implements IFriendshipService {
                 pageable
         );
 
-        List<User> requesters = pageOfRequests.getContent().stream()
-                .map(Friendship::getRequester)
+        List<FriendRequestResponse> requestDtos = pageOfRequests.getContent().stream()
+                .map(friendship -> {
+                    User requester = friendship.getRequester();
+                    return new FriendRequestResponse(
+                            friendship.getId(),
+                            requester.getId(),
+                            requester.getFullName()
+                    );
+                })
                 .toList();
         return new PageResponse<>(
                 200,
                 true,
                 "Tat ca Loi Moi Ket Ban Thanh Cong",
-                requesters,
+                requestDtos,
                 pageOfRequests.getNumber(),
                 pageOfRequests.getSize(),
                 pageOfRequests.getTotalElements(),

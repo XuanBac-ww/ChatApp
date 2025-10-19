@@ -4,7 +4,6 @@ import com.example.SpringSecurity.model.Abstraction.BaseEntity;
 import jakarta.persistence.*;
 import jakarta.persistence.Table;
 import lombok.*;
-import org.hibernate.annotations.*;
 
 
 import java.time.Instant;

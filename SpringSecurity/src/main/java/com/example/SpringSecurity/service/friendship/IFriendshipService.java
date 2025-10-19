@@ -3,7 +3,6 @@ package com.example.SpringSecurity.service.friendship;
 import com.example.SpringSecurity.dto.request.user.NumberPhoneRequest;
 import com.example.SpringSecurity.dto.response.api.ApiResponse;
 import com.example.SpringSecurity.dto.response.api.PageResponse;
-import org.springframework.data.domain.Pageable;
 
 public interface IFriendshipService {
 

@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 
 @RequiredArgsConstructor
@@ -51,6 +52,7 @@ public class AuthService implements IAuthService{
             return new ApiResponse<>(400, false, "Email is Exit", null);
         }
 
+
         return userRepository.findByEmailIncludeDeleted(registerUser.getEmail())
                 .map(user -> {
                     if (user.isDeleted()) { 
@@ -65,7 +67,10 @@ public class AuthService implements IAuthService{
                 })
                 .orElseGet(() -> {
                     User newUser = createUser(registerUser);
-                    return new ApiResponse<>(200, true, "Sign Up Successfully,Please check your email",newUser);
+                    if(!IsUserActiveByEmail(registerUser.getEmail())) {
+                        return new ApiResponse<>(200,true,"Sign Up Successfully,Please check your email",newUser);
+                    }
+                    return new ApiResponse<>(200, false, "Tai Khoan Cua Ban Chua duoc kich hoat",newUser);
                 });
     }
     @Override
@@ -126,5 +131,16 @@ public class AuthService implements IAuthService{
     private int OtpRandom() {
         SecureRandom random = new SecureRandom();
         return 100000 + random.nextInt(900000);
+    }
+
+    private boolean IsUserActiveByEmail(String email){
+        Optional<User> user = userRepository.findByEmail(email);
+        if(user.isPresent()) {
+            boolean isActive = user.get().getActive();
+            if(!isActive)
+                return false;
+            return true;
+        }
+        return false;
     }
 }

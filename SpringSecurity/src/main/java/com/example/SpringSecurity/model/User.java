@@ -10,7 +10,8 @@ import lombok.*;
 import org.hibernate.annotations.*;
 import org.hibernate.envers.Audited;
 
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 
 @Entity
@@ -44,10 +45,11 @@ public class User extends SoftDelete {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-//
 //    @OneToMany(mappedBy = "sender")
 //    private List<Message> messages;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<GroupMember> groupMemberships = new HashSet<>();
 
     private Boolean active = false;
 
