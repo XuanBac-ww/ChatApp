@@ -30,7 +30,7 @@ public class FriendshipService implements IFriendshipService {
     private final IFriendshipRepository friendshipRepository;
     @Override
     @Cacheable(value = "sendAddRequest",key = "#userId")
-    public ApiResponse<?> sendAddFriend(Long senderId, NumberPhoneRequest numberPhoneRequest) {
+    public ApiResponse<Friendship> sendAddFriend(Long senderId, NumberPhoneRequest numberPhoneRequest) {
         User sender = userRepository.findById(senderId)
                 .orElseThrow(() -> new AppException("User Not Found"));
         User receiver = findUserByNumberPhone(numberPhoneRequest.getNumberPhone());
@@ -76,7 +76,7 @@ public class FriendshipService implements IFriendshipService {
         User requester = userRepository.findById(requestId)
                 .orElseThrow(() -> new AppException("Requester Not Found"));
 
-        // Tìm và xóa lời mời
+
         Friendship friendship = friendshipRepository.findFriendshipBetweenUsers(currentUser, requester)
                 .filter(fs -> fs.getFriendshipStatus() == FriendshipStatus.PENDING && fs.getAddressee().equals(currentUser))
                 .orElseThrow(() -> new RuntimeException("Khong Tim Thay Loi Moi Hoac Ban Khong phai la Nguoi nhan"));
@@ -113,10 +113,10 @@ public class FriendshipService implements IFriendshipService {
                 })
                 .toList();
         return new PageResponse<>(
-                200, // status
-                true, // success
+                200,
+                true,
                 "Lay Tat ca ban be thanh cong",
-                friends, // data
+                friends,
                 pageOfFriendships.getNumber(),
                 pageOfFriendships.getSize(),
                 pageOfFriendships.getTotalElements(),

@@ -5,6 +5,7 @@ import com.example.SpringSecurity.dto.request.friend.FriendRequest;
 import com.example.SpringSecurity.dto.request.user.NumberPhoneRequest;
 import com.example.SpringSecurity.dto.response.api.ApiResponse;
 import com.example.SpringSecurity.dto.response.api.PageResponse;
+import com.example.SpringSecurity.model.Friendship;
 import com.example.SpringSecurity.security.CustomUserDetails;
 import com.example.SpringSecurity.service.friendship.IFriendshipService;
 import jakarta.validation.Valid;
@@ -24,7 +25,7 @@ public class FriendShipController {
     @PreAuthorize("hasRole('USER')")
     @PostMapping("/send-request")
     @RateLimit(limit = 5,timeWindowSeconds = 60)
-    public ApiResponse<?> sendAddFriend(@AuthenticationPrincipal CustomUserDetails currentUser, @RequestBody @Valid NumberPhoneRequest request) {
+    public ApiResponse<Friendship> sendAddFriend(@AuthenticationPrincipal CustomUserDetails currentUser, @RequestBody @Valid NumberPhoneRequest request) {
         return friendshipService.sendAddFriend(currentUser.getUserId(), request);
     }
 
