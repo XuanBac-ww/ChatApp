@@ -2,7 +2,6 @@ package com.example.SpringSecurity.service.verifyOTP;
 
 import com.example.SpringSecurity.dto.request.otp.VerifyOtpRequest;
 import com.example.SpringSecurity.dto.response.api.ApiResponse;
-import com.example.SpringSecurity.dto.response.otp.VerifyOtpResponse;
 import com.example.SpringSecurity.model.User;
 import com.example.SpringSecurity.model.VerifyOTP;
 import com.example.SpringSecurity.repository.IUserRepository;
@@ -18,7 +17,7 @@ public class VerifyOTPService implements IVerifyOTPService{
     private final IUserRepository userRepository;
     private final IVerifyOTPRepository verifyOTPRepository;
     @Override
-    public ApiResponse<VerifyOtpResponse> verifyOTP(VerifyOtpRequest verifyOtpRequest) {
+    public ApiResponse<?> verifyOTP(VerifyOtpRequest verifyOtpRequest) {
         User user = userRepository.findByEmail(verifyOtpRequest.getEmail())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
         VerifyOTP verifyOTP = verifyOTPRepository.findByUser(user)

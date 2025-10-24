@@ -61,7 +61,7 @@ public class UserService implements IUserService {
 
     // Tim tat ca entity chua bi xoa mem
     @Override
-    @Cacheable(value = "userAll",key = "#user")
+    @Cacheable(value = "userAll")
     public PageResponse<UserDTO> getAllUser(int page, int size) {
         log.info("Get info all user is starting ");
         Pageable pageable = PageRequest.of(page, size);

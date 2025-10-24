@@ -47,5 +47,5 @@ server:
 security:
   jwt:
     secret-key: ***REMOVED-JWT-SECRET***
-    expiration-time: 60000
+    expiration-time: 900000
     refreshExpirationMs: 604800000

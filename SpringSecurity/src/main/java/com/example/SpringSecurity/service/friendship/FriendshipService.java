@@ -29,7 +29,6 @@ public class FriendshipService implements IFriendshipService {
     private final IUserRepository userRepository;
     private final IFriendshipRepository friendshipRepository;
     @Override
-    @Cacheable(value = "sendAddRequest",key = "#userId")
     public ApiResponse<Friendship> sendAddFriend(Long senderId, NumberPhoneRequest numberPhoneRequest) {
         User sender = userRepository.findById(senderId)
                 .orElseThrow(() -> new AppException("User Not Found"));

@@ -5,7 +5,6 @@ import com.example.SpringSecurity.dto.request.otp.VerifyOtpRequest;
 import com.example.SpringSecurity.dto.response.auth.LoginResponse;
 import com.example.SpringSecurity.dto.request.auth.LoginUserRequest;
 import com.example.SpringSecurity.dto.request.auth.RegisterUserRequest;
-import com.example.SpringSecurity.dto.response.otp.VerifyOtpResponse;
 import com.example.SpringSecurity.model.User;
 import com.example.SpringSecurity.dto.response.api.ApiResponse;
 import com.example.SpringSecurity.service.historyLogin.IHistoryLoginService;
@@ -49,7 +48,7 @@ public class AuthController {
 
     @PostMapping(   "/verify-otp")
     @RateLimit(limit = 5,timeWindowSeconds = 60)
-    public ApiResponse<VerifyOtpResponse> verifyOtp(@RequestBody VerifyOtpRequest verifyOtpRequest) {
+    public ApiResponse<?> verifyOtp(@RequestBody VerifyOtpRequest verifyOtpRequest) {
         return verifyOTPService.verifyOTP(verifyOtpRequest);
     }
 }

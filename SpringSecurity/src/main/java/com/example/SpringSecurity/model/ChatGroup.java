@@ -13,7 +13,7 @@ import java.util.Set;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Group extends BaseEntity {
+public class ChatGroup extends BaseEntity {
 
     @Column(length = 100,nullable = false)
     private String groupName;

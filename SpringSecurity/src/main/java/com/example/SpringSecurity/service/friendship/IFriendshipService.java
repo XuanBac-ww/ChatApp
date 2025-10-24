@@ -3,10 +3,12 @@ package com.example.SpringSecurity.service.friendship;
 import com.example.SpringSecurity.dto.request.user.NumberPhoneRequest;
 import com.example.SpringSecurity.dto.response.api.ApiResponse;
 import com.example.SpringSecurity.dto.response.api.PageResponse;
+import com.example.SpringSecurity.model.Friendship;
+
 
 public interface IFriendshipService {
 
-    ApiResponse<?> sendAddFriend(Long senderId, NumberPhoneRequest numberPhoneRequest);
+    ApiResponse<Friendship> sendAddFriend(Long senderId, NumberPhoneRequest numberPhoneRequest);
 
     ApiResponse<?> acceptFriendRequest(Long userId, Long requestId);
 

@@ -23,4 +23,6 @@ public interface IUserRepository extends ISoftDeleteRepository<User,Long> {
     @Query(value = "SELECT * FROM users WHERE email = :email AND deleted = true", nativeQuery = true)
     Optional<User> findByEmailIncludeDeleted(@Param("email") String email);
 
+    Optional<User> findByFullName(String recipientUsername);
+
 }

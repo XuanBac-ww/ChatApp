@@ -1,17 +1,19 @@
 package com.example.SpringSecurity.service.group;
 
 import com.example.SpringSecurity.dto.mapper.GroupMapper;
+import com.example.SpringSecurity.dto.mapper.GroupMemberMapper;
 import com.example.SpringSecurity.dto.request.group.CreateGroupRequest;
 import com.example.SpringSecurity.dto.request.group.UpdateGroupRequest;
 import com.example.SpringSecurity.dto.response.api.ApiResponse;
 import com.example.SpringSecurity.dto.response.group.GroupDTO;
+import com.example.SpringSecurity.dto.response.groupMember.GroupMemberDTO;
 import com.example.SpringSecurity.enums.GroupRole;
 import com.example.SpringSecurity.exception.AppException;
-import com.example.SpringSecurity.model.Group;
+import com.example.SpringSecurity.model.ChatGroup;
 import com.example.SpringSecurity.model.GroupMember;
 import com.example.SpringSecurity.model.User;
+import com.example.SpringSecurity.repository.IChatGroupRepository;
 import com.example.SpringSecurity.repository.IGroupMemberRepository;
-import com.example.SpringSecurity.repository.IGroupRepository;
 import com.example.SpringSecurity.repository.IUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,32 +26,32 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class GroupService implements IGroupService {
     private final IUserRepository userRepository;
-    private final IGroupRepository groupRepository;
+    private final IChatGroupRepository groupRepository;
     private final IGroupMemberRepository groupMemberRepository;
     private final GroupMapper groupMapper;
+    private final GroupMemberMapper groupMemberMapper;
     @Override
     @Transactional
-    public ApiResponse<?> createGroup(CreateGroupRequest createGroupRequest, Long ownerId) {
+    public ApiResponse<GroupMemberDTO> createGroup(CreateGroupRequest createGroupRequest, Long ownerId) {
         User owner = userRepository.findById(ownerId)
                 .orElseThrow(() -> new AppException("User Not Found"));
-        Group group = Group.builder()
+        ChatGroup group = ChatGroup.builder()
                 .groupName(createGroupRequest.getGroupName())
                 .owner(owner)
                 .build();
-        Group saveGroup = groupRepository.save(group);
+        ChatGroup saveGroup = groupRepository.save(group);
         GroupMember groupMember = GroupMember.builder()
                 .user(owner)
                 .group(saveGroup)
                 .role(GroupRole.GR_ADMIN)
                 .build();
         groupMemberRepository.save(groupMember);
-        return new ApiResponse<>(200,true,"Tạo Group Thành Công",groupMember);
+        return new ApiResponse<>(200,true,"Tạo Group Thành Công",groupMemberMapper.convertToGroupMemberDTO(groupMember));
     }
 
     @Override
-    @Transactional
-    public ApiResponse<?> updateGroupInfo(UpdateGroupRequest updateGroupRequest, Long userRequestId) {
-        Group group = groupRepository.findById(updateGroupRequest.getGroupId())
+    public ApiResponse<GroupDTO> updateGroupInfo(UpdateGroupRequest updateGroupRequest, Long userRequestId) {
+        ChatGroup group = groupRepository.findById(updateGroupRequest.getGroupId())
                 .orElseThrow(() -> new AppException("Group Not Found"));
         User currentUser = userRepository.findById(userRequestId)
                 .orElseThrow(() ->  new AppException("User Not Found"));
@@ -58,13 +60,13 @@ public class GroupService implements IGroupService {
         }
 
         group.setGroupName(updateGroupRequest.getGroupName());
-        return new ApiResponse<>(200,true,"Cap Nhat ten nhom thanh cong",group);
+        GroupDTO groupDTO = groupMapper.convertToGroupDTO(group);
+        return new ApiResponse<>(200,true,"Cap Nhat ten nhom thanh cong",groupDTO);
     }
 
     @Override
-    @Transactional
     public ApiResponse<?> deleteGroup(Long groupId, Long ownerId) {
-        Group group = groupRepository.findById(groupId)
+        ChatGroup group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new AppException("Group Not Found"));
         if(!group.getOwner().getId().equals(ownerId)) {
             return new ApiResponse<>(200,false,"Chi co Admin moi co quyen xoa",null);
@@ -74,14 +76,14 @@ public class GroupService implements IGroupService {
     }
 
     @Override
-    public ApiResponse<?> getMyGroups(Long userId) {
+    public ApiResponse<List<GroupDTO>> getMyGroups(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException("User Not Found"));
 
         List<GroupDTO> myGroupsList = user.getGroupMemberships()
                 .stream()
                 .map(groupMember -> {
-                    Group group = groupMember.getGroup();
+                    ChatGroup group = groupMember.getGroup();
 
                     GroupDTO groupDTO = groupMapper.convertToGroupDTO(group);
                     if (group.getOwner() != null) {
