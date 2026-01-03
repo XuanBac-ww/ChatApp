@@ -1,0 +1,20 @@
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: spring_app
+    ports:
+      - "8080:8080"
+    env_file:
+      - ../.env
+    depends_on:
+      redis:
+        condition: service_started
+      mysql:
+        condition: service_healthy
+    networks:
+      - spring-network
+networks:
+  spring-network:
+    external: true
