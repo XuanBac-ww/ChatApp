@@ -32,7 +32,6 @@ public class Conversation extends BaseEntity {
     @OneToMany(mappedBy = "conversation", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ConversationParticipant> participants;
 
-
     @OneToMany(mappedBy = "conversation", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ChatMessage> messages;
 }

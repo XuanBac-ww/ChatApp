@@ -31,11 +31,9 @@ public class WebSocketAuthInterceptor implements ChannelInterceptor {
 
         if (accessor != null && StompCommand.CONNECT.equals(accessor.getCommand())) {
             String token = accessor.getFirstNativeHeader("Authorization");
-
             if (token != null && token.startsWith("Bearer ")) {
                 token = token.substring(7);
             }
-
             if (token != null) {
                 try {
                     String username = jwtService.extractUsername(token);
@@ -47,7 +45,6 @@ public class WebSocketAuthInterceptor implements ChannelInterceptor {
                     UserDetails userDetails = customUserDetailService.loadUserByUsername(username);
 
                     if (jwtService.isTokenValid(token, userDetails)) {
-
 
                         Long userId = jwtService.extractUserId(token);
                         CustomUserDetails customUserDetails = ((CustomUserDetails) userDetails).withUserId(userId);

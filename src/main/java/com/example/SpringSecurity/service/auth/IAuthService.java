@@ -7,7 +7,6 @@ import com.example.SpringSecurity.dto.request.auth.RegisterUserRequest;
 import com.example.SpringSecurity.enums.Role;
 import com.example.SpringSecurity.model.User;
 import com.example.SpringSecurity.dto.response.api.ApiResponse;
-import org.springframework.transaction.annotation.Transactional;
 
 public interface IAuthService {
     ApiResponse<User> signup(RegisterUserRequest registerUser);

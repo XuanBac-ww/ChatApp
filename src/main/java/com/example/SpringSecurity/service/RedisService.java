@@ -11,7 +11,6 @@ import java.util.concurrent.TimeUnit;
 public class RedisService {
     private final RedisTemplate<String, Object> redisTemplate;
 
-
     public void saveToBlacklist(String token, long timeToLiveInMillis) {
         redisTemplate.opsForValue().set(token, "blacklisted", timeToLiveInMillis, TimeUnit.MILLISECONDS);
     }

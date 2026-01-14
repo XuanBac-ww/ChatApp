@@ -1,4 +1,4 @@
-package com.example.SpringSecurity.security;
+package com.example.SpringSecurity.infrastructure;
 
 import lombok.NonNull;
 import org.springframework.data.domain.AuditorAware;
@@ -7,7 +7,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.Optional;
 
-public class SpringSecurityAuditorAware implements AuditorAware<String> {
+public class SpringAuditorAware implements AuditorAware<String> {
     @Override
     @NonNull
     public Optional<String> getCurrentAuditor() {

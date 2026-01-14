@@ -27,7 +27,7 @@ public class RateLimitAspect {
 
     @Around("@annotation(rateLimit)")
     public Object handleRateLimit(ProceedingJoinPoint joinPoint, RateLimit rateLimit) throws Throwable {
-        String key = generateRedisKey(joinPoint, rateLimit);
+        String key = generateRedisKey(joinPoint);
         boolean isAllowed = redisRateLimiter.isAllowed(
                 key,
                 rateLimit.limit(),
@@ -41,7 +41,7 @@ public class RateLimitAspect {
     }
 
 
-    private String generateRedisKey(ProceedingJoinPoint joinPoint, RateLimit rateLimit) {
+    private String generateRedisKey(ProceedingJoinPoint joinPoint) {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         String methodName = signature.getMethod().getName();
         String identifier = resolveIdentifier();

@@ -64,7 +64,6 @@ public class ImageService implements IImageService{
         } else {
             Map uploadResult = uploadToCloudinary(file);
 
-
             imageToLink = new Image();
             imageToLink.setUrl((String) uploadResult.get("secure_url"));
             imageToLink.setHash(newHash);
