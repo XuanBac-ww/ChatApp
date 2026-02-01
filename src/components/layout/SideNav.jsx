@@ -1,11 +1,11 @@
-import React, { useCallback } from 'react';
+import { MessageSquare, User, UserPlus, Users } from 'lucide-react';
+import { useCallback } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
-import { MessageSquare, UserPlus, Users, User } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
-import SkeletonConversation from './SkeletonConversation';
+import { useConversations } from '../../hooks/useConversations';
 import AccountPreview from '../ui/AccountPreview';
 import ConversationItem from '../ui/ConversationItem';
-import { useConversations } from '../../hooks/useConversations';
+import SkeletonConversation from './SkeletonConversation';
 
 const NAV_ITEMS = [
     { text: 'Tin nhắn', icon: MessageSquare, path: '/home' },
@@ -31,7 +31,9 @@ const SideNav = () => {
                     id: conv.otherUserId, 
                     fullName: conv.name,    
                     profileImage: conv.avatar 
-                } 
+                },
+                // pass conversationId when available to avoid relying on name-to-id resolution
+                conversationId: conv.id
             }
         });
     }, [navigate]);

@@ -45,7 +45,7 @@ export const useAvatarUpload = (profile) => {
         }
     };
 
-    const currentAvatar = previewImage || profile?.profileImage ;
+    const currentAvatar = profile?.profileImage;
 
     return {
         isUploading,

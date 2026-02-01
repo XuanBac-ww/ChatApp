@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { formatTimeDisplay } from '../utils/dateUtils';
+import { useEffect, useState } from 'react';
 import { getMyConversations } from '../service/conversationService';
+import { formatTimeDisplay } from '../utils/dateUtils';
 
 export const useConversations = (user, recipientState) => {
     const [conversations, setConversations] = useState([]);
@@ -36,7 +36,11 @@ export const useConversations = (user, recipientState) => {
                         else if (item.recipientId) {
                              targetId = item.recipientId;
                         }
-                
+
+                        // Prefer explicit otherUserId from API if present (avoid mismatches)
+                        if (item.otherUserId) {
+                            targetId = item.otherUserId;
+                        }               
 
                         return {
                             id: item.conversationId, 
@@ -50,9 +54,9 @@ export const useConversations = (user, recipientState) => {
                     });
                 }
 
-                // --- LOGIC MERGE NGƯỜI MỚI (TỪ TRANG BẠN BÈ/TÌM KIẾM) ---
+
                 if (recipientState) {
-                    const recipientName = recipientState.userName || recipientState.fullName;
+                    const recipientName =  recipientState.fullName;
                     
                     // Tìm xem cuộc trò chuyện này đã có trong danh sách tải về chưa
                     const existingIndex = mappedData.findIndex(c => c.name === recipientName);
@@ -65,7 +69,7 @@ export const useConversations = (user, recipientState) => {
                         // Nếu là chat mới hoàn toàn, tạo một item tạm ở đầu
                         mappedData.unshift({
                             id: `temp-${Date.now()}`,
-                            otherUserId: recipientState.userId || recipientState.id, 
+                            otherUserId: recipientState.userId, 
                             name: recipientName,
                             message: "Bắt đầu cuộc trò chuyện...",
                             time: "Vừa xong",

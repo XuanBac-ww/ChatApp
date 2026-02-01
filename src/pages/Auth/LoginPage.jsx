@@ -30,7 +30,6 @@ const LoginPage = () => {
             if (res && res.success) {
 
                 const { token } = res.data;
-
                
                 localStorage.setItem("access_token", token);
                 

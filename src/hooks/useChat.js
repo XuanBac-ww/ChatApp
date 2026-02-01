@@ -1,8 +1,8 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import SockJS from 'sockjs-client';
 import Stomp from 'stompjs';
+import { getMessages, getMyConversations, sendMessage, startDirectConversation } from '../service/conversationService';
 import { getUserByFullName } from '../service/userService';
-import { getMessages, sendMessage, startDirectConversation } from '../service/conversationService';
 
 
 const getToken = () => {
@@ -19,7 +19,7 @@ export const useRecipientResolver = (fullName, initialRecipient) => {
             setIsLoading(true);
             const decodedName = decodeURIComponent(fullName);
             getUserByFullName(decodedName)
-                .then(res => setRecipient(res.data || res)) 
+                .then(res => setRecipient(res.data)) 
                 .catch(err => console.error("User fetch error:", err))
                 .finally(() => setIsLoading(false));
         } else {
@@ -31,7 +31,7 @@ export const useRecipientResolver = (fullName, initialRecipient) => {
 };
 
 // Hook Chat Real-time
-export const useChatSession = (recipient) => {
+export const useChatSession = (recipient, initialConversationId = null) => {
     const [conversation, setConversation] = useState(null);
     const [messages, setMessages] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -39,21 +39,62 @@ export const useChatSession = (recipient) => {
     const stompClientRef = useRef(null);
 
     useEffect(() => {
-        if (!recipient) return;
+        if (!recipient && !initialConversationId) return;
 
         const initSession = async () => {
             setIsLoading(true);
             try {
+                // If we already have a concrete conversationId from navigation, load it directly
+                if (initialConversationId) {
+                    const convId = initialConversationId;
+                    setConversation({ id: convId, conversationId: convId });
+                    const msgRes = await getMessages(convId);
+                    setMessages(msgRes.data);
+                    setIsLoading(false);
+                    return;
+                }
+
                 const recipientId = recipient.id || recipient.userId;
-                
+
                 const convRes = await startDirectConversation(recipientId);
-                const convData = convRes.data 
+                console.log("DEBUG: startDirectConversation response:", convRes);
+                let convData = convRes.data;
+
+                // If the server returned a conversation that doesn't match the target recipient,
+                // try to find a correct conversation among the user's conversations as a fallback.
+                if (convData && convData.otherUserId && String(convData.otherUserId) !== String(recipientId)) {
+                    console.warn("Conversation's otherUserId doesn't match recipientId. Trying fallback search...");
+                    try {
+                        const all = await getMyConversations();
+                        console.log("DEBUG: getMyConversations for fallback:", all);
+                        const list = (all && all.data) || all || [];
+                        const found = list.find(c => (
+                            String(c.userId) === String(recipientId) ||
+                            String(c.recipientId) === String(recipientId) ||
+                            String(c.otherUserId) === String(recipientId) ||
+                            String(c.senderId) === String(recipientId) ||
+                            String(c.receiverId) === String(recipientId)
+                        ));
+
+                        if (found) {
+                            
+                            convData = {
+                                id: found.conversationId,
+                                ...found
+                            };
+                        }
+                    } catch (e) {
+                        console.error("Fallback search failed:", e);
+                    }
+                }
+
                 setConversation(convData);
 
-             
-                if (convData?.id) {
-                    const msgRes = await getMessages(convData.id);
-                    setMessages(msgRes.data || msgRes);
+                const convId = convData?.conversationId;
+                if (convId) {
+                    const msgRes = await getMessages(convId);
+                    console.log("DEBUG: messages loaded:", msgRes);
+                    setMessages(msgRes.data);
                 }
             } catch (error) {
                 console.error("Init chat error:", error);
@@ -63,7 +104,7 @@ export const useChatSession = (recipient) => {
         };
 
         initSession();
-    }, [recipient]);
+    }, [recipient, initialConversationId]);
 
     useEffect(() => {
         const token = getToken();
@@ -84,7 +125,6 @@ export const useChatSession = (recipient) => {
 
                 stompClient.subscribe(`/topic/conversations/${conversation.id}`, (payload) => {
                     const newMessage = JSON.parse(payload.body);
-                    
                    
                     setMessages((prev) => {
                         if (prev.some(m => m.id === newMessage.id)) return prev;
@@ -100,7 +140,6 @@ export const useChatSession = (recipient) => {
             stompClientRef.current = stompClient;
         }
 
-       
         return () => {
             if (stompClientRef.current) {
                 stompClientRef.current.disconnect();

@@ -22,7 +22,6 @@ const VerifyAccountPage = () => {
       if (response && response.success === false) {
           throw new Error(response.message || "Xác thực thất bại");
       }
-
      
       alert("Xác thực thành công! Vui lòng đăng nhập.");
       navigate("/login"); 

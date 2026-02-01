@@ -1,12 +1,11 @@
 import { useEffect, useRef } from 'react';
-import { useParams, useLocation, Navigate } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
-import { useChatSession, useRecipientResolver } from '../../hooks/useChat';
+import { Navigate, useLocation, useParams } from 'react-router-dom';
 import ChatInput from '../../components/common/ChatInput';
 import MessageBubble from '../../components/ui/MessageBubble';
+import { useAuth } from '../../hooks/useAuth';
+import { useChatSession, useRecipientResolver } from '../../hooks/useChat';
 import { sendMessage, startDirectConversation } from '../../service/conversationService';
 
-const DEFAULT_AVATAR = "https://via.placeholder.com/150";
 
 const MessagePage = () => {
     const { fullName } = useParams();
@@ -15,8 +14,12 @@ const MessagePage = () => {
     const messagesEndRef = useRef(null);
 
     const { recipient, isLoading: loadingUser } = useRecipientResolver(fullName, location.state?.recipientUser);
-    
-    const { conversation, setConversation, messages, setMessages, isLoading: loadingChat } = useChatSession(recipient);
+
+    // Use a provided conversationId when available and valid (skip temp ids)
+    const rawConvId = location.state?.conversationId;
+    const conversationIdFromState = rawConvId && String(rawConvId).startsWith('temp-') ? null : rawConvId;
+
+    const { conversation, setConversation, messages, setMessages, isLoading: loadingChat } = useChatSession(recipient, conversationIdFromState);
 
     useEffect(() => {
         if (recipient) {
@@ -104,7 +107,7 @@ const MessagePage = () => {
     if (!recipient) return <Navigate to="/home" />;
     if (!currentUser) return <div className="h-full flex items-center justify-center text-gray-500">Đang xác thực...</div>;
 
-    const recipientAvatar = recipient.avatar || recipient.profileImage || DEFAULT_AVATAR;
+    const recipientAvatar = recipient.profileImage;
 
     return (
         <div className="flex flex-col h-full bg-white relative">
