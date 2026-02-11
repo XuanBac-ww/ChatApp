@@ -1,62 +1,40 @@
-# Chat App Frontend (React + Vite)
-A modern, responsive user interface for the Chat Application.
+Chat App Frontend (React + Vite)
+A modern, responsive frontend for a real-time Chat application, optimized for great user experience and performance.
 
-## 🛠 Tech Stack
-- Framework: React.js (Vite)
-- Networking: Axios & SockJS/STOMP
+🛠 Tech Stack
+
+- Networking: Fetch API (custom fetch client) & SockJS/STOMP (WebSockets)
 - Styling: Tailwind CSS / CSS Modules
+- State Management: React Context API & custom hooks
 
-## 🔗 Backend Integration
-Create a `.env` file:
+🔗 Backend Integration
+This project is designed to work with a Spring Boot backend. Create a `.env` file at the project root:
 
 ```env
 VITE_API_BASE_URL=http://localhost:8080
-
 ```
 
-## 📂 Project Structure
-`src/`
-- `main.jsx`: Entry point, mounts the React app.
-- `App.jsx`: Root component, high-level layout and routing.
-- `App.css`: Global styles.
+Make sure the backend is configured with CORS to allow `http://localhost:5173`.
 
-- `assets/`
-  - Static assets such as images and SVGs used in the UI.
+📂 Project Structure
 
-- `components/`
-  - `common/`: Reusable primitives (`Button`, `ChatInput`, `InputField`, `StateMessage`).
-  - `forms/`: Auth-related form components (`LoginForm`, `RegisterForm`).
-  - `layout/`: Layout building blocks (`MainLayout`, `SideNav`, `Menu`, `Logo`, `MainImage`, `ChatRedirect`, `SkeletonConversation`).
-  - `ui/`: Reusable UI pieces for the chat domain (`ConversationItem`, `MessageBubble`, `FriendCard`, `AccountPreview`, `InfoCard`, `PendingRequestItem`, `ProfileField`, `SearchResultItem`).
-
-- `context/`
-  - `AuthContext.jsx`: React context for authentication state and actions.
-
-- `hooks/`
-  - Custom hooks for encapsulating logic (`useAuth`, `useChat`, `useConversations`, `useFriendRequest`, `useProfile`, `useUserSearch`, `useAvatarUpload`).
-
-- `libs/`
-  - `fetchClient.js`: Pre-configured Axios client (e.g. base URL, interceptors, JWT handling).
-
-- `pages/`
-  - Route-level pages grouped by feature:
-    - `Auth/`: `LoginPage`, `SignUpPage`, `VerifyAccountPage`.
-    - `Home/`: `Homepage`.
-    - `Chat/`: `MessagePage`.
-    - `FriendRequest/`: `FriendShipRequestPage`.
-    - `Friendship/`: `FriendshipPage`.
-    - `Profile/`: `ProfilePage`.
-
-- `service/`
-  - API service modules for each domain (`authService`, `userService`, `conversationService`, `friendshipService`, `adminService`, `imageService`).
-
-- `utils/`
-  - `dateUtils.js`: Helpers for formatting and working with dates in the UI.
-
-## 🚀 Getting Started
-1. `npm install`
-2. `npm run dev`
-
-## 💡 Key Features
-- JWT Authentication with Axios Interceptors
-- Real-time messaging via WebSockets
+```text
+src/
+├── components/
+│   ├── common/      # Core UI components (Button, Input, StateMessage)
+│   ├── forms/       # Authentication form logic (Login, Register)
+│   ├── layout/      # Main layout building blocks (MainLayout, SideNav, Skeleton)
+│   └── ui/          # Chat-specific UI (MessageBubble, FriendCard, ProfileField)
+├── context/         # AuthContext for global authentication state
+├── hooks/           # Custom hooks separating logic (useAuth, useChat, useConversations)
+├── libs/            # fetchClient.js: Fetch configuration, JWT handling, interceptors
+├── pages/           # Route-level pages (Auth, Home, Chat, Profile)
+├── service/         # Service layer for API calls per domain (auth, user, message)
+└── utils/           # Utility helpers (dateUtils.js)
+```
+💡 Key Features
+- Custom Fetch Client: Uses the native Fetch API to perform HTTP requests.
+- Automatically attaches JWT tokens to request headers.
+- Centralized handling of error responses (401 Unauthorized, etc.).
+- Real-time Messaging: Instant chat experience via STOMP over WebSockets.
+- Responsive Layout: Adapts well to both desktop and mobile screens.
