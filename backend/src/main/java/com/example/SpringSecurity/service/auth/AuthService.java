@@ -26,12 +26,15 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionalEventListener;
 import org.springframework.util.StringUtils;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Optional;
+
+import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT;
 
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -49,8 +52,8 @@ public class AuthService implements IAuthService{
     private final RedisService redisService;
 
     @Override
-    @Transactional
-    @CacheEvict(value = "users_list", allEntries = true)
+    @TransactionalEventListener(phase = AFTER_COMMIT)
+    @CacheEvict(value = "user", key = "#registerUser.email")
     public ApiResponse<User> signup(RegisterUserRequest registerUser) {
         if(userValidationService.findByEmail(registerUser.getEmail())) {
             return new ApiResponse<>(200, false, "Email exist", null);
@@ -106,7 +109,6 @@ public class AuthService implements IAuthService{
 
 
     @Override
-    @Transactional
     public ApiResponse<Void> logout(LogoutRequest request, String accessTokenHeader) {
         if (StringUtils.hasText(accessTokenHeader) && accessTokenHeader.startsWith("Bearer ")) {
             String accessToken = accessTokenHeader.substring(7);
@@ -127,7 +129,8 @@ public class AuthService implements IAuthService{
     @Override
     public ApiResponse<User> forgotPassword(ResetPasswordUserRequest request) {
         User user =  userValidationService.validateAndGetUserByEmail(request.getEmail());
-        user.setPassword(request.getPassword());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        userRepository.save(user);
         return new ApiResponse<>(200, true, "ResetPassword successfully", user);
     }
 
