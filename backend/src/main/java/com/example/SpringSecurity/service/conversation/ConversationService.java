@@ -20,6 +20,7 @@ import com.example.SpringSecurity.repository.IConversationRepository;
 import com.example.SpringSecurity.service.user.IUserValidationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -42,6 +43,7 @@ public class ConversationService implements IConversationService {
     private final IUserValidationService userValidationService;
 
     @Override
+    @Cacheable(value = "user_conversations", key = "#userId")
     public ApiResponse<List<ConversationPreviewDTO>> getConversationForUser(Long userId) {
         // Thông tin của người đăng nhập
         User currentUser = userValidationService.findById(userId);
@@ -107,7 +109,6 @@ public class ConversationService implements IConversationService {
         return new ApiResponse<>(200, true, "Get messages of conversation", messages);
     }
 
-    @Transactional
     @Override
     @CacheEvict(value = "user_conversations", key = "#userId")
     public ApiResponse<MessageDTO> sendMessage(Long conversationId, SendMessageRequestDTO request, Long userId) {
