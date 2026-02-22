@@ -1,6 +1,7 @@
 package com.example.SpringSecurity.service.auth;
 
 import com.example.SpringSecurity.dto.request.auth.LogoutRequest;
+import com.example.SpringSecurity.dto.request.auth.ResetPasswordUserRequest;
 import com.example.SpringSecurity.dto.response.auth.LoginResponse;
 import com.example.SpringSecurity.dto.request.auth.LoginUserRequest;
 import com.example.SpringSecurity.dto.request.auth.RegisterUserRequest;
@@ -120,6 +121,14 @@ public class AuthService implements IAuthService{
         }
         SecurityContextHolder.clearContext();
         return new ApiResponse<>(200, true, "Logout successfully", null);
+    }
+
+    @Transactional
+    @Override
+    public ApiResponse<User> forgotPassword(ResetPasswordUserRequest request) {
+        User user =  userValidationService.validateAndGetUserByEmail(request.getEmail());
+        user.setPassword(request.getPassword());
+        return new ApiResponse<>(200, true, "ResetPassword successfully", user);
     }
 
 

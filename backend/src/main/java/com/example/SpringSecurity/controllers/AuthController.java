@@ -2,6 +2,7 @@ package com.example.SpringSecurity.controllers;
 
 import com.example.SpringSecurity.annotation.RateLimit;
 import com.example.SpringSecurity.dto.request.auth.LogoutRequest;
+import com.example.SpringSecurity.dto.request.auth.ResetPasswordUserRequest;
 import com.example.SpringSecurity.dto.request.otp.VerifyOtpRequest;
 import com.example.SpringSecurity.dto.response.auth.LoginResponse;
 import com.example.SpringSecurity.dto.request.auth.LoginUserRequest;
@@ -56,4 +57,10 @@ public class AuthController {
         return authService.logout(request, authorizationHeader);
     }
 
+
+    @PostMapping("/reset-password")
+    @RateLimit(limit = 5,timeWindowSeconds = 60)
+    public ApiResponse<User> resetPassword(@Valid @RequestBody ResetPasswordUserRequest request) {
+        return authService.forgotPassword(request);
+    }
 }
