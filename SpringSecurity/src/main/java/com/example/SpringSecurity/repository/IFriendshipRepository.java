@@ -25,6 +25,6 @@ public interface IFriendshipRepository extends IBaseRepository<Friendship, Long>
             "(f.requester = :user OR f.addressee = :user) AND f.friendshipStatus = :status")
     Page<Friendship> findAllFriendsByUser(@Param("user") User user, @Param("status") FriendshipStatus status, Pageable pageable);
 
-
     Page<Friendship> findByAddresseeAndFriendshipStatus(User addressee, FriendshipStatus status, Pageable pageable);
+
 }

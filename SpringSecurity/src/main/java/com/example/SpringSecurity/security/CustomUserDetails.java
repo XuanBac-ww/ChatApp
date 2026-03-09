@@ -13,22 +13,33 @@ import java.util.List;
 public class CustomUserDetails implements UserDetails {
     private final Long userId;
     private final String email;
+    private final String fullName;
     private final String password;
+    private final String avatarUrl;
+
     private final Collection<? extends GrantedAuthority> authorities;
 
-    public CustomUserDetails(Long userId, String email, String password,
+    public CustomUserDetails(Long userId, String email, String fullName, String password, String avatarUrl,
                              Collection<? extends GrantedAuthority> authorities) {
         this.userId = userId;
         this.email = email;
+        this.fullName = fullName;
         this.password = password;
+        this.avatarUrl = avatarUrl;
         this.authorities = authorities;
     }
 
     public static CustomUserDetails fromUserEntity(User user) {
+        String avatarUrl = (user.getProfileImage() != null)
+                ? user.getProfileImage().getUrl()
+                : null;
+
         return new CustomUserDetails(
                 user.getId(),
                 user.getEmail(),
+                user.getFullName(),
                 user.getPassword(),
+                avatarUrl,
                 List.of(new SimpleGrantedAuthority(user.getRole().name()))
         );
     }
@@ -37,7 +48,9 @@ public class CustomUserDetails implements UserDetails {
         return new CustomUserDetails(
                 userId,
                 this.getEmail(),
+                this.getFullName(),
                 this.getPassword(),
+                this.getAvatarUrl(),
                 this.getAuthorities()
         );
     }

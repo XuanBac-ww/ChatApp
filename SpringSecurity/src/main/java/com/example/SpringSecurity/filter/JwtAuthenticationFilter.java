@@ -2,7 +2,8 @@ package com.example.SpringSecurity.filter;
 
 import com.example.SpringSecurity.security.CustomUserDetailService;
 import com.example.SpringSecurity.security.CustomUserDetails;
-import com.example.SpringSecurity.service.JwtService;
+import com.example.SpringSecurity.service.IJwtService;
+import com.example.SpringSecurity.service.IRedisService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,15 +24,16 @@ import java.io.IOException;
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
     private final HandlerExceptionResolver handlerExceptionResolver;
-    private final JwtService jwtService;
+    private final IJwtService jwtService;
     private final CustomUserDetailService customUserDetailService;
+    private final IRedisService redisService;
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
                                     @NonNull HttpServletResponse response,
-                                    @NonNull FilterChain filterChain
-    ) throws ServletException, IOException {
+                                    @NonNull FilterChain filterChain) throws ServletException, IOException {
         final String authHeader = request.getHeader("Authorization");
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
@@ -41,6 +43,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         try {
             final String jwt = authHeader.substring(7);
+
+            if (redisService.isBlacklisted(jwt)) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json");
+                response.getWriter().write("{\"code\": 401, \"success\": false, \"message\": \"Token has been revoked (Logged out)\", \"data\": null}");
+                return;
+            }
+
             final String userEmail = jwtService.extractUsername(jwt);
 
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

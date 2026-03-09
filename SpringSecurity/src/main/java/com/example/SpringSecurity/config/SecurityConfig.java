@@ -32,7 +32,7 @@ public class SecurityConfig {
     private final AuthenticationProvider authenticationProvider;
     private final JwtAuthenticationFilter authenticationFilter;
 
-    @Value("${app.cors.allowed-origins:http://localhost:8005}")
+    @Value("${app.cors.allowed-origins:http://localhost:5173}")
     private List<String> allowedOrigins;
 
     private static final String[] SWAGGER_WHITELIST = {

@@ -49,7 +49,7 @@ public class GlobalHandlerException {
                 .body(new ApiResponse<>(
                         HttpStatus.UNAUTHORIZED.value(),
                         false,
-                        "Unauthorized: " + ex.getMessage(),
+                        "đăng nhập thất bại",
                         null
                 ));
     }
@@ -81,17 +81,17 @@ public class GlobalHandlerException {
     // 400 - Validation errors
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<Object>> handleValidationErrors(MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap<>();
-        for (FieldError error : ex.getBindingResult().getFieldErrors()) {
-            errors.put(error.getField(), error.getDefaultMessage());
-        }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        FieldError firstError = ex.getBindingResult().getFieldErrors().get(0);
+        String errorMessage = firstError.getDefaultMessage();
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(new ApiResponse<>(
                         HttpStatus.BAD_REQUEST.value(),
                         false,
-                        "Validation failed",
-                        errors
+                        errorMessage,
+                        null
                 ));
+
     }
 
     @ExceptionHandler(RateLimitExceedException.class)

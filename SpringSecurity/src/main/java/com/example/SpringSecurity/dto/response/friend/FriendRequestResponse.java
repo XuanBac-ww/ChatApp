@@ -11,4 +11,5 @@ public class FriendRequestResponse {
     private Long friendshipId;
     private Long requesterId;
     private String requesterUsername;
+    private String imageUrl;
 }

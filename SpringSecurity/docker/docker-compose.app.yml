@@ -9,11 +9,12 @@ services:
     env_file:
       - ../.env
     depends_on:
-      - redis
-      - mysql
+      redis:
+        condition: service_started
+      mysql:
+        condition: service_healthy
     networks:
       - spring-network
-
 networks:
   spring-network:
     external: true

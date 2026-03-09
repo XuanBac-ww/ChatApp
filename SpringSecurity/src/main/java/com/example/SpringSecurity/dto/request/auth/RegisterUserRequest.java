@@ -8,14 +8,16 @@ import lombok.Data;
 
 @Data
 public class RegisterUserRequest {
-    @Email
+    @Email(message = "Email không đúng định dạng")
     private String email;
-    @NotBlank
+
+    @NotBlank(message = "Họ tên không được để trống")
     private String fullName;
-    @NotBlank
+
+    @NotBlank(message = "Mật khẩu không được để trống")
     private String password;
-    @NotBlank
-    @Pattern(regexp = "^0\\d{9}$")
-    @Size(max = 10,message = "So dien thoai toi da la 10 chu so va khong duoc de trong")
+
+    @NotBlank(message = "Số điện thoại không được để trống")
+    @Pattern(regexp = "^0\\d{9}$", message = "Số điện thoại phải bắt đầu bằng 0 và có đúng 10 chữ số")
     private String numberPhone;
 }
