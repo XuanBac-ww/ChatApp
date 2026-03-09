@@ -1,6 +1,8 @@
 package com.example.SpringSecurity.controllers;
 
 import com.example.SpringSecurity.annotation.RateLimit;
+import com.example.SpringSecurity.dto.request.auth.LogoutRequest;
+import com.example.SpringSecurity.dto.request.auth.ResetPasswordUserRequest;
 import com.example.SpringSecurity.dto.request.otp.VerifyOtpRequest;
 import com.example.SpringSecurity.dto.response.auth.LoginResponse;
 import com.example.SpringSecurity.dto.request.auth.LoginUserRequest;
@@ -12,10 +14,7 @@ import com.example.SpringSecurity.service.auth.IAuthService;
 import com.example.SpringSecurity.service.verifyOTP.IVerifyOTPService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -46,9 +45,22 @@ public class AuthController {
         return historyLoginService.handleRefreshToken(refreshToken);
     }
 
-    @PostMapping(   "/verify-otp")
+    @PostMapping("/verify-otp")
     @RateLimit(limit = 5,timeWindowSeconds = 60)
-    public ApiResponse<?> verifyOtp(@RequestBody VerifyOtpRequest verifyOtpRequest) {
+    public ApiResponse<?> verifyOtp(@Valid @RequestBody VerifyOtpRequest verifyOtpRequest) {
         return verifyOTPService.verifyOTP(verifyOtpRequest);
     }
+
+    @PostMapping("/logout")
+    public ApiResponse<Void> logout(@RequestBody LogoutRequest request,
+                                    @RequestHeader("Authorization") String authorizationHeader) {
+        return authService.logout(request, authorizationHeader);
+    }
+
+    @PostMapping("/reset-password")
+    @RateLimit(limit = 5,timeWindowSeconds = 60)
+    public ApiResponse<?> verifyOtp(@Valid @RequestBody ResetPasswordUserRequest request) {
+        return authService.forgotPassword(request);
+    }
+
 }

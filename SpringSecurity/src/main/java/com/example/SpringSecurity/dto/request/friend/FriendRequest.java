@@ -6,5 +6,5 @@ import lombok.Data;
 @Data
 public class FriendRequest {
     @NotNull
-    private Long requesterId;
+    private Long userId;
 }

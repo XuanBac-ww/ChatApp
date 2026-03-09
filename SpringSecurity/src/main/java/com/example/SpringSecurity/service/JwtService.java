@@ -6,6 +6,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -15,8 +16,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+@Slf4j
 @Service
-public class JwtService {
+public class JwtService implements IJwtService {
 
     @Value("${security.jwt.secret-key}")
     private String secretKey;
@@ -24,26 +26,38 @@ public class JwtService {
     @Value("${security.jwt.expiration-time}")
     private long jwtExpiration;
 
+    @Override
     public String extractUsername(String token) {
+        log.debug("Extracting username from JWT token");
         return extractClaim(token, Claims::getSubject);
     }
 
+    @Override
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+        log.debug("Extracting claim from JWT token");
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
 
+    @Override
     public String generateToken(UserDetails userDetails) {
+        log.info("Generating JWT token for user");
         return generateToken(new HashMap<>(), userDetails);
     }
 
+    @Override
     public Long extractUserId(String token) {
+        log.debug("Extracting userId from JWT token");
         return extractClaim(token, claims -> claims.get("userId", Long.class));
     }
 
+    @Override
     public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
+        log.debug("Building JWT with extra claims");
         if (userDetails instanceof CustomUserDetails cud) {
             extraClaims.put("userId", cud.getUserId());
+            extraClaims.put("name", cud.getFullName());
+            extraClaims.put("avatar", cud.getAvatarUrl());
         }
 
         String role = userDetails.getAuthorities().iterator().next().getAuthority();
@@ -52,6 +66,7 @@ public class JwtService {
         return buildToken(extraClaims, userDetails, jwtExpiration);
     }
 
+    @Override
     public long getExpirationTime() {
         return jwtExpiration;
     }
@@ -71,7 +86,9 @@ public class JwtService {
                 .compact();
     }
 
+    @Override
     public boolean isTokenValid(String token, UserDetails userDetails) {
+        log.debug("Validating JWT token for authenticated user");
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
     }
@@ -80,7 +97,9 @@ public class JwtService {
         return extractExpiration(token).before(new Date());
     }
 
-    private Date extractExpiration(String token) {
+    @Override
+    public Date extractExpiration(String token) {
+        log.debug("Extracting expiration from JWT token");
         return extractClaim(token, Claims::getExpiration);
     }
 

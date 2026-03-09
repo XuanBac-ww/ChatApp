@@ -1,0 +1,36 @@
+# ===== OS / Editor =====
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.iml
+
+# ===== Environment / Secrets =====
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.jks
+
+# ===== Java / Spring Boot =====
+target/
+build/
+out/
+*.class
+*.log
+.mvn/wrapper/maven-wrapper.jar
+
+# ===== Node / React =====
+node_modules/
+dist/
+coverage/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ===== Temporary =====
+*.tmp
+*.temp

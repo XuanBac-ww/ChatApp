@@ -2,7 +2,7 @@ package com.example.SpringSecurity.config;
 
 import com.example.SpringSecurity.security.CustomUserDetailService;
 import com.example.SpringSecurity.security.CustomUserDetails;
-import com.example.SpringSecurity.service.JwtService;
+import com.example.SpringSecurity.service.IJwtService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.Message;
@@ -17,12 +17,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import java.util.Objects;
-
 @Component
 @RequiredArgsConstructor
 public class WebSocketAuthInterceptor implements ChannelInterceptor {
-    private final JwtService jwtService;
+    private final IJwtService jwtService;
     private final CustomUserDetailService customUserDetailService;
 
     @Override
@@ -31,11 +29,9 @@ public class WebSocketAuthInterceptor implements ChannelInterceptor {
 
         if (accessor != null && StompCommand.CONNECT.equals(accessor.getCommand())) {
             String token = accessor.getFirstNativeHeader("Authorization");
-
             if (token != null && token.startsWith("Bearer ")) {
                 token = token.substring(7);
             }
-
             if (token != null) {
                 try {
                     String username = jwtService.extractUsername(token);
@@ -47,7 +43,6 @@ public class WebSocketAuthInterceptor implements ChannelInterceptor {
                     UserDetails userDetails = customUserDetailService.loadUserByUsername(username);
 
                     if (jwtService.isTokenValid(token, userDetails)) {
-
 
                         Long userId = jwtService.extractUserId(token);
                         CustomUserDetails customUserDetails = ((CustomUserDetails) userDetails).withUserId(userId);

@@ -9,9 +9,7 @@ import jakarta.persistence.Table;
 import lombok.*;
 import org.hibernate.annotations.*;
 import org.hibernate.envers.Audited;
-import org.hibernate.envers.NotAudited;
 
-import java.util.HashSet;
 import java.util.Set;
 
 
@@ -46,11 +44,15 @@ public class User extends SoftDelete {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @NotAudited
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<GroupMember> groupMemberships = new HashSet<>();
 
     private Boolean active = false;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Image profileImage;
+
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private Set<ConversationParticipant> conversationParticipants;
 
 }

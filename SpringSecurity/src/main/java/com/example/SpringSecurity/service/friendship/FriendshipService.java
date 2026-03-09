@@ -1,96 +1,109 @@
 package com.example.SpringSecurity.service.friendship;
 
-
-import com.example.SpringSecurity.dto.request.user.NumberPhoneRequest;
+import com.example.SpringSecurity.dto.mapper.FriendShipMapper;
+import com.example.SpringSecurity.dto.request.friend.FriendRequest;
 import com.example.SpringSecurity.dto.response.api.ApiResponse;
 import com.example.SpringSecurity.dto.response.api.PageResponse;
 import com.example.SpringSecurity.dto.response.friend.FriendDTO;
 import com.example.SpringSecurity.dto.response.friend.FriendRequestResponse;
+import com.example.SpringSecurity.dto.response.friend.FriendShipResponseDTO;
 import com.example.SpringSecurity.enums.FriendshipStatus;
 import com.example.SpringSecurity.exception.AppException;
 import com.example.SpringSecurity.model.Friendship;
 import com.example.SpringSecurity.model.User;
 import com.example.SpringSecurity.repository.IFriendshipRepository;
-import com.example.SpringSecurity.repository.IUserRepository;
+import com.example.SpringSecurity.service.user.IUserValidationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class FriendshipService implements IFriendshipService {
-    private final IUserRepository userRepository;
-    private final IFriendshipRepository friendshipRepository;
-    @Override
-    public ApiResponse<Friendship> sendAddFriend(Long senderId, NumberPhoneRequest numberPhoneRequest) {
-        User sender = userRepository.findById(senderId)
-                .orElseThrow(() -> new AppException("User Not Found"));
-        User receiver = findUserByNumberPhone(numberPhoneRequest.getNumberPhone());
-        if(senderId.equals(receiver.getId())) {
-            return new ApiResponse<>(200,false,"Khong duoc gui ket ban chinh minh",null);
-        }
 
-        friendshipRepository.findFriendshipBetweenUsers(sender,receiver).ifPresent(
-                fs -> {
-                    throw new AppException("Loi gui ket ban Da duoc gui hoac cac ban da la ban be");
-                }
-        );
+    private final IUserValidationService userValidationService;
+    private final IFriendshipRepository friendshipRepository;
+    private final FriendShipMapper friendShipMapper;
+
+    @Override
+    @Transactional
+    @CacheEvict(value = "pending_requests", allEntries = true)
+    public ApiResponse<FriendShipResponseDTO> sendAddFriend(Long senderId, FriendRequest request) {
+        log.info("Start send friend request from userId={} to userId={}", senderId, request.getUserId());
+        User sender = userValidationService.findById(senderId);
+        User receiver = userValidationService.findById(request.getUserId());
+
+        validateNotSelfRequest(senderId, receiver.getId());
+
+        friendshipRepository.findFriendshipBetweenUsers(sender, receiver).ifPresent(fs -> {
+            log.error("Friend request already exists between senderId={} and receiverId={}", senderId, receiver.getId());
+            throw new AppException("Your already sent a request or you are already friends");
+        });
 
         Friendship newRequest = Friendship.builder()
                 .requester(sender)
                 .addressee(receiver)
                 .friendshipStatus(FriendshipStatus.PENDING)
                 .build();
-        friendshipRepository.save(newRequest);
-        return new ApiResponse<>(200,true,"Gui yeu cau ket ban thanh cong",newRequest);
+
+        Friendship savedFriendship = friendshipRepository.save(newRequest);
+        FriendShipResponseDTO responseDTO = friendShipMapper.toResponseDTO(savedFriendship);
+        log.info("Send friend request success from userId={} to userId={}", senderId, request.getUserId());
+        return new ApiResponse<>(200, true, "Send request successfully", responseDTO);
     }
 
     @Override
+    @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "user_friends", allEntries = true),
+            @CacheEvict(value = "pending_requests", allEntries = true)
+    })
     public ApiResponse<?> acceptFriendRequest(Long userId, Long requestId) {
-        User currentUser = userRepository.findById(userId)
-                .orElseThrow(() -> new AppException("User Not Found"));
-        User requester = userRepository.findById(requestId)
-                .orElseThrow(() -> new AppException("Requester Not Found"));
-        // Tìm lời mời mà currentUser là người nhận
-        Friendship friendship = friendshipRepository.findFriendshipBetweenUsers(currentUser, requester)
-                .filter(fs -> fs.getFriendshipStatus() == FriendshipStatus.PENDING && fs.getAddressee().equals(currentUser))
-                .orElseThrow(() -> new RuntimeException("Friend request not found or you are not the recipient."));
+        log.info("Start accept friend request receiverId={} requesterId={}", userId, requestId);
+        User currentUser = userValidationService.findById(userId);
+        User requester = userValidationService.findById(requestId);
+
+        Friendship friendship = findPendingRequestOrThrow(currentUser, requester);
 
         friendship.setFriendshipStatus(FriendshipStatus.ACCEPTED);
         friendshipRepository.save(friendship);
-        return new ApiResponse<>(200,true,"Chap Nhan Thanh Cong Loi Moi Ket Ban",null);
+        log.info("Accept friend request success receiverId={} requesterId={}", userId, requestId);
+        return new ApiResponse<>(200, true, "Accept request successfully", null);
     }
 
     @Override
+    @Transactional
+    @CacheEvict(value = "pending_requests", allEntries = true)
     public ApiResponse<?> rejectFriendRequest(Long currentId, Long requestId) {
-        User currentUser = userRepository.findById(currentId)
-                .orElseThrow(() -> new AppException("User Not Found"));
-        User requester = userRepository.findById(requestId)
-                .orElseThrow(() -> new AppException("Requester Not Found"));
+        log.info("Start reject friend request receiverId={} requesterId={}", currentId, requestId);
+        User currentUser = userValidationService.findById(currentId);
+        User requester = userValidationService.findById(requestId);
 
-
-        Friendship friendship = friendshipRepository.findFriendshipBetweenUsers(currentUser, requester)
-                .filter(fs -> fs.getFriendshipStatus() == FriendshipStatus.PENDING && fs.getAddressee().equals(currentUser))
-                .orElseThrow(() -> new RuntimeException("Khong Tim Thay Loi Moi Hoac Ban Khong phai la Nguoi nhan"));
+        Friendship friendship = findPendingRequestOrThrow(currentUser, requester);
 
         friendshipRepository.delete(friendship);
-        return new ApiResponse<>(200,true,"Tu choi ket ban Thanh Cong",null);
+        log.info("Reject friend request success receiverId={} requesterId={}", currentId, requestId);
+        return new ApiResponse<>(200, true, "Reject request successfully", null);
     }
 
     @Override
-    @Cacheable(value = "AllFriend",key = "#userId")
+    @Cacheable(value = "user_friends", key = "#userId + '_' + #page + '_' + #size")
     public PageResponse<?> getAllFriend(Long userId, int page, int size) {
-        log.info("");
-        User currentUser = userRepository.findById(userId)
-                .orElseThrow(() -> new AppException("User Not Found"));
+        log.info("Start get all friends for userId={} page={} size={}", userId, page, size);
+        User currentUser = userValidationService.findById(userId);
         Pageable pageable = PageRequest.of(page, size);
+
         Page<Friendship> pageOfFriendships = friendshipRepository.findAllFriendsByUser(
                 currentUser,
                 FriendshipStatus.ACCEPTED,
@@ -99,22 +112,26 @@ public class FriendshipService implements IFriendshipService {
 
         List<FriendDTO> friends = pageOfFriendships.getContent().stream()
                 .map(friendship -> {
-                    User friendEntity;
-                    if(friendship.getRequester().getId().equals(currentUser.getId())) {
-                        friendEntity = friendship.getAddressee();
-                    } else {
-                        friendEntity = friendship.getRequester();
-                    }
+                    // Xác định ai là bạn
+                    User friendEntity = friendship.getRequester().getId().equals(currentUser.getId())
+                            ? friendship.getAddressee()
+                            : friendship.getRequester();
+
+                    String imageUrl = (friendEntity.getProfileImage() != null)
+                            ? friendEntity.getProfileImage().getUrl()
+                            : null;
+
                     return new FriendDTO(
                             friendEntity.getId(),
-                            friendEntity.getFullName()
+                            friendEntity.getFullName(),
+                            imageUrl
                     );
                 })
                 .toList();
+        log.info("Get all friends success for userId={}", userId);
+
         return new PageResponse<>(
-                200,
-                true,
-                "Lay Tat ca ban be thanh cong",
+                200, true, "Get all friends successfully",
                 friends,
                 pageOfFriendships.getNumber(),
                 pageOfFriendships.getSize(),
@@ -125,11 +142,12 @@ public class FriendshipService implements IFriendshipService {
     }
 
     @Override
-    @Cacheable(value = "AllRequest",key = "#userId")
-    public PageResponse<?> getPendingFriendRequest(Long userId, int page, int size) {
-        User currentUser = userRepository.findById(userId)
-                .orElseThrow(() -> new AppException("User Not Found"));
+    @Cacheable(value = "pending_requests", key = "#userId + '_' + #page + '_' + #size")
+    public PageResponse<FriendRequestResponse> getPendingFriendRequest(Long userId, int page, int size) {
+        log.info("Start get pending requests for userId={} page={} size={}", userId, page, size);
+        User currentUser = userValidationService.findById(userId);
         Pageable pageable = PageRequest.of(page, size);
+
         Page<Friendship> pageOfRequests = friendshipRepository.findByAddresseeAndFriendshipStatus(
                 currentUser,
                 FriendshipStatus.PENDING,
@@ -139,17 +157,23 @@ public class FriendshipService implements IFriendshipService {
         List<FriendRequestResponse> requestDtos = pageOfRequests.getContent().stream()
                 .map(friendship -> {
                     User requester = friendship.getRequester();
+                    // Lấy ảnh trực tiếp từ User entity
+                    String imageUrl = (requester.getProfileImage() != null)
+                            ? requester.getProfileImage().getUrl()
+                            : null;
+
                     return new FriendRequestResponse(
                             friendship.getId(),
                             requester.getId(),
-                            requester.getFullName()
+                            requester.getFullName(),
+                            imageUrl
                     );
                 })
                 .toList();
+        log.info("Get pending requests success for userId={}", userId);
+
         return new PageResponse<>(
-                200,
-                true,
-                "Tat ca Loi Moi Ket Ban Thanh Cong",
+                200, true, "Get pending friend request successfully",
                 requestDtos,
                 pageOfRequests.getNumber(),
                 pageOfRequests.getSize(),
@@ -159,8 +183,15 @@ public class FriendshipService implements IFriendshipService {
         );
     }
 
-    private User findUserByNumberPhone(String phoneNumber) {
-        return userRepository.findByNumberPhone(phoneNumber)
-                .orElseThrow(() -> new AppException("User Not Found"));
+    private void validateNotSelfRequest(Long senderId, Long receiverId) {
+        if (senderId.equals(receiverId)) {
+            throw new AppException("Not send request to yourself");
+        }
+    }
+
+    private Friendship findPendingRequestOrThrow(User currentUser, User requester) {
+        return friendshipRepository.findFriendshipBetweenUsers(currentUser, requester)
+                .filter(fs -> fs.getFriendshipStatus() == FriendshipStatus.PENDING && fs.getAddressee().equals(currentUser))
+                .orElseThrow(() -> new AppException("Request Not Found"));
     }
 }

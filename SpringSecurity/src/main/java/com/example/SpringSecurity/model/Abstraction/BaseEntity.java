@@ -1,5 +1,9 @@
 package com.example.SpringSecurity.model.Abstraction;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,7 +13,8 @@ import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.Date;
 
 @Getter
 @Setter
@@ -22,13 +27,15 @@ public abstract class BaseEntity  {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+
     @CreatedDate
     @Column(name = "created_at", updatable = false, nullable = false)
-    private Instant createdAt;  // first time created
+    private Date createdAt;  // first time created
+
 
     @LastModifiedDate
     @Column(name = "updated_at")
-    private Instant updatedAt;  //   updated after created
+    private Date updatedAt;  //   updated after created
 
     @CreatedBy
     @Column(name = "created_by", updatable = false)

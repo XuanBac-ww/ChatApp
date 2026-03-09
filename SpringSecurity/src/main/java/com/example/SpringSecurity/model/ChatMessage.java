@@ -3,14 +3,17 @@ package com.example.SpringSecurity.model;
 import com.example.SpringSecurity.model.Abstraction.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.envers.Audited;
 
 @Entity
 @Getter
 @Setter
+@Audited
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class ChatMessage extends BaseEntity {
+
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
@@ -19,10 +22,6 @@ public class ChatMessage extends BaseEntity {
     private User sender;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "recipient_id")
-    private User recipient;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "group_id")
-    private ChatGroup chatGroup;
+    @JoinColumn(name = "conversation_id", nullable = false)
+    private Conversation conversation;
 }
