@@ -1,24 +1,25 @@
 import { fetchClient } from "../libs/fetchClient";
 
-export const uploadImage = (file) => {
+const createImageFormData = (file) => {
     const formData = new FormData();
-    formData.append("image", file); 
+    formData.append("image", file);
+    return formData;
+};
+
+export const uploadImage = (file) => {
     return fetchClient({
         baseUrl: "/image/upload",
         method: "POST",
-        params: formData,
-        isAuth: true
+        formData: createImageFormData(file),
+        isAuth: true,
     });
 };
 
 export const updateImage = (imageId, file) => {
-    const formData = new FormData();
-    formData.append("image", file);
-
     return fetchClient({
         baseUrl: `/image/update/${imageId}`,
         method: "PUT",
-        params: formData,
-        isAuth: true
+        formData: createImageFormData(file),
+        isAuth: true,
     });
 };

@@ -1,10 +1,8 @@
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
-import { useConversations } from '../../hooks/useConversations';
+import { useConversationContext } from '../../hooks/useConversationContext';
 
 const ChatRedirect = () => {
-    const { user } = useAuth();
-    const { conversations, isLoading } = useConversations(user);
+    const { conversations, isLoading } = useConversationContext();
 
     if (isLoading) {
         return <div className="h-full flex items-center justify-center text-gray-500">Đang tải...</div>;

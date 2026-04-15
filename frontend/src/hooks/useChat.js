@@ -1,14 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import SockJS from 'sockjs-client';
 import Stomp from 'stompjs';
+import { getValidAccessToken } from '../libs/fetchClient';
 import { getMessages, sendMessage, startDirectConversation } from '../service/conversationService';
 import { getUserByFullName } from '../service/userService';
 import { getConversationId, getUserId, isTemporaryConversationId } from '../utils/userUtils';
 
-
-const getToken = () => {
-    return localStorage.getItem("access_token") || ""; 
-};
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080";
+const WS_URL = new URL("/ws", API_URL).toString();
 
 export const useRecipientResolver = (fullName, initialRecipient) => {
     const [recipient, setRecipient] = useState(initialRecipient);
@@ -66,7 +65,7 @@ export const useChatSession = (recipient, initialConversationId = null) => {
     const [messages, setMessages] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
-    
+
     const stompClientRef = useRef(null);
 
     useEffect(() => {
@@ -131,22 +130,36 @@ export const useChatSession = (recipient, initialConversationId = null) => {
     const conversationId = getConversationId(conversation);
 
     useEffect(() => {
-        const token = getToken();
+        if (!conversationId) {
+            return undefined;
+        }
 
-        if (conversationId && token) {
-            const socket = new SockJS('http://localhost:8080/ws'); 
+        let isCancelled = false;
+
+        const connectSocket = async () => {
+            const token = await getValidAccessToken();
+            if (!token || isCancelled) {
+                return;
+            }
+
+            const socket = new SockJS(WS_URL);
             const stompClient = Stomp.over(socket);
-           
-            stompClient.debug = null; 
+
+            stompClient.debug = null;
 
             const headers = {
                 'Authorization': `Bearer ${token}`
             };
 
             stompClient.connect(headers, () => {
+                if (isCancelled) {
+                    stompClient.disconnect();
+                    return;
+                }
+
                 stompClient.subscribe(`/topic/conversations/${conversationId}`, (payload) => {
                     const newMessage = JSON.parse(payload.body);
-                   
+
                     setMessages((prev) => {
                         if (prev.some(m => m.id === newMessage.id)) return prev;
                         return [...prev, newMessage];
@@ -155,9 +168,16 @@ export const useChatSession = (recipient, initialConversationId = null) => {
             });
 
             stompClientRef.current = stompClient;
-        }
+        };
+
+        connectSocket().catch((socketError) => {
+            if (!isCancelled) {
+                setError(socketError.message || 'KhÃ´ng thá»ƒ káº¿t ná»‘i WebSocket.');
+            }
+        });
 
         return () => {
+            isCancelled = true;
             if (stompClientRef.current) {
                 stompClientRef.current.disconnect();
             }

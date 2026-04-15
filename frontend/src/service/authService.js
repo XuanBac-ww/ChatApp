@@ -1,37 +1,48 @@
-import { fetchClient } from "../libs/fetchClient"
+import { fetchClient } from "../libs/fetchClient";
 
 export const login = (values) => {
     return fetchClient({
         baseUrl: "/auths/login",
         method: "POST",
-        params: values,
-        isAuth: false // Không cần token khi đăng nhập
-    })
-}
+        body: {
+            email: values.email?.trim(),
+            password: values.password,
+        },
+        isAuth: false,
+    });
+};
 
 export const signUp = (values) => {
     return fetchClient({
         baseUrl: "/auths/signup",
         method: "POST",
-        params: values,
-        isAuth: false 
-    })
-}
+        body: {
+            email: values.email?.trim(),
+            password: values.password,
+            fullName: values.fullName?.trim(),
+            numberPhone: values.numberPhone?.trim(),
+        },
+        isAuth: false,
+    });
+};
 
 export const logout = (refreshToken) => {
-  return fetchClient({
-    baseUrl: "/auths/logout",
-    method: "POST",
-    params: { refreshToken: refreshToken }, 
-    isAuth: true 
-  });
+    return fetchClient({
+        baseUrl: "/auths/logout",
+        method: "POST",
+        body: { refreshToken },
+        isAuth: true,
+    });
 };
 
 export const verifyOtp = (values) => {
     return fetchClient({
-        baseUrl: "/auths/verify-otp", 
+        baseUrl: "/auths/verify-otp",
         method: "POST",
-        params: values, 
-        isAuth: false
+        body: {
+            email: values.email?.trim(),
+            otp: values.otp?.trim(),
+        },
+        isAuth: false,
     });
 };

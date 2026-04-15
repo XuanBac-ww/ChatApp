@@ -1,26 +1,15 @@
-import { formatTimeDisplay } from './dateUtils';
+import { formatTimeDisplay } from "./dateUtils";
+import { getUserAvatar, getUserDisplayName, getUserId } from "./userUtils";
 
-export const mapConversationItem = (item, currentUserId) => {
-    let otherUserId = item.userId;
-
-    if (item.senderId && item.receiverId) {
-        otherUserId = String(item.senderId) === String(currentUserId) ? item.receiverId : item.senderId;
-    } else if (item.recipientId) {
-        otherUserId = item.recipientId;
-    }
-
-    if (item.otherUserId) {
-        otherUserId = item.otherUserId;
-    }
-
+export const mapConversationItem = (item) => {
     return {
         id: item.conversationId,
-        otherUserId,
+        otherUserId: item.userId,
         name: item.name,
         message: item.lastMessage || "Chưa có tin nhắn",
         avatar: item.avatar,
         time: formatTimeDisplay(item.lastMessageTimestamp),
-        timestamp: item.lastMessageTimestamp
+        timestamp: item.lastMessageTimestamp,
     };
 };
 
@@ -30,7 +19,7 @@ export const mergeRecipientConversation = (conversations, recipientState) => {
     }
 
     const nextConversations = [...conversations];
-    const recipientName = recipientState.fullName;
+    const recipientName = getUserDisplayName(recipientState);
     const existingIndex = nextConversations.findIndex((conversation) => conversation.name === recipientName);
 
     if (existingIndex > -1) {
@@ -41,11 +30,11 @@ export const mergeRecipientConversation = (conversations, recipientState) => {
 
     nextConversations.unshift({
         id: `temp-${Date.now()}`,
-        otherUserId: recipientState.userId,
+        otherUserId: getUserId(recipientState),
         name: recipientName,
         message: "Bắt đầu cuộc trò chuyện...",
         time: "Vừa xong",
-        avatar: recipientState.avatar
+        avatar: getUserAvatar(recipientState),
     });
 
     return nextConversations;

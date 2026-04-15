@@ -1,37 +1,38 @@
-import { useState, useEffect } from 'react'; 
+import { useState, useEffect } from 'react';
 import { jwtDecode } from 'jwt-decode';
-import { useNavigate } from 'react-router-dom'; 
+import { useNavigate } from 'react-router-dom';
 import { AuthContext } from './AuthContextValue';
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
-    const navigate = useNavigate(); 
+    const navigate = useNavigate();
 
     useEffect(() => {
-        const token = localStorage.getItem("access_token"); 
-        
+        const token = localStorage.getItem("access_token");
+
         if(token) {
             try {
-                const decodedUser = jwtDecode(token); 
-                setUser(decodedUser); 
+                const decodedUser = jwtDecode(token);
+                setUser(decodedUser);
             } catch {
                 localStorage.removeItem("access_token");
             }
         }
-    
+
     }, []);
 
     const logout = () => {
         localStorage.removeItem("access_token");
-        localStorage.removeItem("refreshToken"); 
-        
+        localStorage.removeItem("refreshToken");
+        localStorage.removeItem("token_expiry");
+
         setUser(null);
-        
+
         navigate("/login");
     };
 
     return (
-       
+
         <AuthContext.Provider value={{ user, setUser, logout }}>
             {children}
         </AuthContext.Provider>

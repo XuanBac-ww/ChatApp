@@ -1,40 +1,40 @@
-import { fetchClient } from "../libs/fetchClient"
-
-
+import { fetchClient } from "../libs/fetchClient";
 
 export const getUserInfo = () => {
     return fetchClient({
         baseUrl: "/users/me",
         method: "GET",
-        isAuth: true 
-    })
-}
-
+        isAuth: true,
+    });
+};
 
 export const updateUserProfile = (userData) => {
     return fetchClient({
         baseUrl: "/users/update-account",
         method: "PUT",
-        params: userData,
-        isAuth: true
-    })
-}
+        body: {
+            fullName: userData.fullName?.trim(),
+            numberPhone: userData.numberPhone?.trim(),
+        },
+        isAuth: true,
+    });
+};
 
 export const searchUsers = (requestBody) => {
     return fetchClient({
         baseUrl: "/users/search",
         method: "POST",
-        params: requestBody, 
-        isAuth: true
-    })
-}
-
+        body: {
+            numberPhone: requestBody.numberPhone?.trim(),
+        },
+        isAuth: true,
+    });
+};
 
 export const getUserByFullName = (fullName) => {
-    const encodedName = encodeURIComponent(fullName);
     return fetchClient({
-        baseUrl: `/users/${encodedName}`,
+        baseUrl: `/users/${encodeURIComponent(fullName)}`,
         method: "GET",
-        isAuth: true
+        isAuth: true,
     });
 };

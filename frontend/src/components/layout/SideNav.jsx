@@ -1,8 +1,8 @@
 import { MessageSquare, User, UserPlus, Users } from 'lucide-react';
 import { useCallback } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { useConversationContext } from '../../hooks/useConversationContext';
 import { useAuth } from '../../hooks/useAuth';
-import { useConversations } from '../../hooks/useConversations';
 import { getUserAvatar, getUserDisplayName } from '../../utils/userUtils';
 import AccountPreview from '../ui/AccountPreview';
 import ConversationItem from '../ui/ConversationItem';
@@ -28,7 +28,7 @@ const SideNav = () => {
     const navigate = useNavigate();
     const recipientState = location.state?.recipientUser;
 
-    const { conversations, isLoading, error } = useConversations(user, recipientState);
+    const { conversations, isLoading, error } = useConversationContext();
 
     const handleChatClick = useCallback((conv) => {
         const safeNameUrl = encodeURIComponent(conv.name);

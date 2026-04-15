@@ -1,27 +1,27 @@
-import { fetchClient } from "../libs/fetchClient"
+import { fetchClient } from "../libs/fetchClient";
 
-
-export const getAllUsers = () => {
+export const getAllUsers = (page = 0, size = 10) => {
     return fetchClient({
         baseUrl: "/admin/all",
         method: "GET",
-        isAuth: true
+        query: { page, size },
+        isAuth: true,
+    });
+};
 
-    })
-}
-
-export const getAllDeletedUsers = () => {
+export const getAllDeletedUsers = (page = 0, size = 10) => {
     return fetchClient({
         baseUrl: "/admin/all/deleted",
         method: "GET",
-        isAuth: true
-    })
-}
+        query: { page, size },
+        isAuth: true,
+    });
+};
 
 export const deleteAccount = () => {
     return fetchClient({
         baseUrl: "/admin/delete-account",
         method: "DELETE",
-        isAuth: true
-    })
-}
+        isAuth: true,
+    });
+};

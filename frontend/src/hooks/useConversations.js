@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getMyConversations } from '../service/conversationService';
 import { mapConversationItem, mergeRecipientConversation } from '../utils/conversationUtils';
-import { getUserId } from '../utils/userUtils';
 
 export const useConversations = (user, recipientState) => {
     const [conversations, setConversations] = useState([]);
@@ -26,7 +25,7 @@ export const useConversations = (user, recipientState) => {
                 if (!isMounted) return;
 
                 const items = response?.data || [];
-                const mappedConversations = items.map((item) => mapConversationItem(item, getUserId(user)));
+                const mappedConversations = items.map(mapConversationItem);
                 setConversations(mergeRecipientConversation(mappedConversations, recipientState));
             } catch (fetchError) {
                 setError(fetchError.message || "Lỗi tải cuộc trò chuyện.");

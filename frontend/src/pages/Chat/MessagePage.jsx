@@ -79,8 +79,8 @@ const MessagePage = () => {
                     <div className="space-y-1">
                         {messages.map((msg, index) => {
                             const myId = getUserId(currentUser);
-                            const senderId = msg.senderId || getUserId(msg.sender);
-                            const isMe = String(senderId) === String(myId);
+                            const senderUserId = getUserId(msg.sender);
+                            const isMe = String(senderUserId) === String(myId);
 
                             return (
                                 <MessageBubble 

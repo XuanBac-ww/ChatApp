@@ -44,7 +44,7 @@ const FriendShipRequestPage = () => {
       setSearchResults((prevResults) =>
         prevResults.map((user) => {
           if (user.userId === userId) {
-            return { ...user, status: 'PENDING' };
+            return { ...user, status: 'PENDING_SENT' };
           }
           return user;
         })
@@ -55,7 +55,7 @@ const FriendShipRequestPage = () => {
       if (result.message && (result.message.includes("Đã gửi") || result.message.includes("exist"))) {
          setSearchResults((prevResults) =>
             prevResults.map((user) => 
-               user.userId === userId ? { ...user, status: 'PENDING' } : user
+               user.userId === userId ? { ...user, status: 'PENDING_SENT' } : user
             )
          );
       }

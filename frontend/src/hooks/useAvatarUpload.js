@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { uploadImage, updateImage } from '../service/imageService';
+import { uploadImage } from '../service/imageService';
 
 export const useAvatarUpload = (profile) => {
     const [isUploading, setIsUploading] = useState(false);
@@ -32,11 +32,7 @@ export const useAvatarUpload = (profile) => {
         setIsUploading(true);
 
         try {
-            if (profile?.imageId) {
-                await updateImage(profile.imageId, file);
-            } else {
-                await uploadImage(file);
-            }
+            await uploadImage(file);
         } catch (error) {
             setUploadError(error.message || 'Có lỗi xảy ra, vui lòng thử lại.');
             setPreviewImage(null); 

@@ -2,57 +2,45 @@ import { fetchClient } from "../libs/fetchClient";
 
 export const getAllFriends = (page = 0, size = 10) => {
     return fetchClient({
-        baseUrl: "/friend-ship/all", 
+        baseUrl: "/friend-ship/all",
         method: "GET",
-        params: {
-            page,
-            size
-        },
-        isAuth: true 
+        query: { page, size },
+        isAuth: true,
     });
 };
 
-
-export const sendFriendRequest = (payload) => {
+export const sendFriendRequest = (userId) => {
     return fetchClient({
-        baseUrl: "/friend-ship/send-request", 
+        baseUrl: "/friend-ship/send-request",
         method: "POST",
-        params: payload,
-        isAuth: true
-    })
-}
-
-export const acceptFriendRequest = async (requesterId) => {
-  return await fetchClient({
-    baseUrl: `/friend-ship/accept-request`, 
-    method: 'POST', 
-    isAuth: true,
-    params: { 
-        userId: requesterId 
-    }
-  });
+        body: { userId },
+        isAuth: true,
+    });
 };
 
-export const rejectFriendRequest = async (requesterId) => {
-  return await fetchClient({
-    baseUrl: `/friend-ship/reject-request`, 
-    method: 'POST', 
-    isAuth: true,
-    params: { 
-        userId: requesterId 
-    }
-  });
+export const acceptFriendRequest = (userId) => {
+    return fetchClient({
+        baseUrl: "/friend-ship/accept-request",
+        method: "POST",
+        body: { userId },
+        isAuth: true,
+    });
 };
 
+export const rejectFriendRequest = (userId) => {
+    return fetchClient({
+        baseUrl: "/friend-ship/reject-request",
+        method: "POST",
+        body: { userId },
+        isAuth: true,
+    });
+};
 
 export const getPendingFriendRequests = (page = 0, size = 10) => {
-  return fetchClient({
-    baseUrl: "/friend-ship/pending-request",
-    method: "GET",
-    params: {
-      page,
-      size,
-    },
-    isAuth: true,
-  });
+    return fetchClient({
+        baseUrl: "/friend-ship/pending-request",
+        method: "GET",
+        query: { page, size },
+        isAuth: true,
+    });
 };

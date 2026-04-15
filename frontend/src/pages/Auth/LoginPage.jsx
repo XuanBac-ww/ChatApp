@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom"; 
 import LoginForm from "../../components/forms/LoginForm";
+import { useAuth } from "../../hooks/useAuth";
 import { login } from "../../service/authService";
 import { AUTH_PAGE_WRAPPER_CLASS } from "../../utils/authUiClasses";
 
@@ -13,6 +14,7 @@ const LoginPage = () => {
         password : ""
     });
     const [error, setError] = useState(null);     
+    const { setUser } = useAuth();
 
     const handleChangeInput = (e) => {
         setError(null); 
@@ -30,14 +32,18 @@ const LoginPage = () => {
 
             if (res && res.success) {
 
-                const { token } = res.data;
+                const { token, refreshToken } = res.data;
                
                 localStorage.setItem("access_token", token);
+                if (refreshToken) {
+                    localStorage.setItem("refreshToken", refreshToken);
+                }
                 
                 try {
                     const decodedToken = jwtDecode(token);
                     const expiryTime = decodedToken.exp * 1000; 
                     localStorage.setItem("token_expiry", expiryTime.toString());
+                    setUser(decodedToken);
                 } catch {
                     setError("Token không hợp lệ, không thể đăng nhập.");
                     localStorage.removeItem("access_token"); 

@@ -17,13 +17,13 @@ export const useUserSearch = () => {
     setLoadingSearch(true);
     setError(null);
     try {
-      const payload = { numberPhone: searchQuery }; 
+      const payload = { numberPhone: searchQuery.trim() };
       const response = await searchUsers(payload);
       if (response.success) {
         if (response.data) {
-            setSearchResults([response.data]); 
+            setSearchResults([response.data]);
         } else {
-            setSearchResults([]); 
+            setSearchResults([]);
         }
       } else {
         setSearchResults([]);
@@ -41,15 +41,14 @@ export const useUserSearch = () => {
     if (!identifier) return { success: false, message: "Không tìm thấy người dùng" };
 
     try {
-      const payload = { userId: identifier }; 
-      const response = await sendFriendRequest(payload);
+      const response = await sendFriendRequest(identifier);
 
       return { success: response.success, message: response.message };
     } catch (err) {
       return { success: false, message: err.message };
     }
 };
-  
+
   return {
     searchQuery,
     setSearchQuery,

@@ -1,6 +1,6 @@
 import { MessageSquareMore } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { getUserDisplayName } from "../../utils/userUtils";
+import { getUserAvatar, getUserDisplayName } from "../../utils/userUtils";
 
 
 const DEFAULT_AVATAR = "https://i.pravatar.cc/150?u=default"; 
@@ -9,7 +9,7 @@ const FriendCard = ({ friend }) => {
 
     const navigate = useNavigate();
 
-    const avatarUrl = friend.profileImage || DEFAULT_AVATAR;
+    const avatarUrl = getUserAvatar(friend) || DEFAULT_AVATAR;
     const displayName = getUserDisplayName(friend);
 
     const handleChatClick = () => {
