@@ -1,64 +1,93 @@
-# ChatApp - README Dự Án
+# ChatApp
 
-Đây là dự án chat mini gồm:
+ChatApp là ứng dụng chat realtime full-stack, gồm backend Spring Boot và frontend React. Dự án tập trung vào xác thực tài khoản, quản lý bạn bè, hội thoại 1-1 và nhắn tin thời gian thực.
 
-- Frontend ReactJS tại `reactjs/reactjs`
-- Backend Spring Boot + Spring Security tại `SpringSecurity/SpringSecurity`
-
-README này được viết dựa trên source hiện có của cả hai phía, không chỉ mô tả ý tưởng chung mà bám vào đúng cấu trúc, endpoint, config và luồng nghiệp vụ đang có trong code.
-
-## 1. Tổng quan
-
-Hệ thống là một ứng dụng chat 1-1 có xác thực tài khoản bằng OTP email, đăng nhập bằng JWT, quản lý hồ sơ cá nhân, kết bạn, và nhắn tin thời gian thực qua WebSocket.
-
-### Tính năng chính
-
-- Đăng ký tài khoản bằng email, họ tên, số điện thoại và mật khẩu
-- Gửi OTP qua email để kích hoạt tài khoản
-- Đăng nhập bằng JWT
-- Xem và cập nhật hồ sơ cá nhân
-- Upload/cập nhật avatar lên Cloudinary
-- Tìm người dùng theo số điện thoại
-- Gửi, chấp nhận, từ chối lời mời kết bạn
-- Xem danh sách bạn bè có phân trang
-- Tạo hoặc lấy lại cuộc trò chuyện direct message
-- Xem lịch sử tin nhắn
-- Gửi và nhận tin nhắn realtime qua SockJS + STOMP
-- Có sẵn các API admin để xem user active/deleted và xóa mềm tài khoản
-
-## 2. Cấu trúc thư mục thực tế
+## Cấu Trúc
 
 ```text
-D:\SpringSecurity
-|- README.md
-|- reactjs
-|  \- reactjs
-|     |- package.json
-|     \- src
-\- SpringSecurity
-   \- SpringSecurity
-      |- pom.xml
-      |- docker
-      \- src
+ChatApp
+|- backend
+|  |- src
+|  |- docker
+|  |- pom.xml
+|  \- mvnw.cmd
+|- frontend
+|  |- src
+|  |- public
+|  |- package.json
+|  \- vite.config.js
+\- README.md
 ```
 
-Lưu ý: source hiện tại đang được đặt trong hai thư mục lồng tên giống nhau:
+## Chức Năng Đã Triển Khai
 
-- Frontend: `reactjs/reactjs`
-- Backend: `SpringSecurity/SpringSecurity`
+### Xác Thực Và Tài Khoản
 
-## 3. Tech stack
+- Đăng ký tài khoản bằng email, họ tên, số điện thoại và mật khẩu.
+- Gửi OTP qua email để xác thực tài khoản.
+- Đăng nhập bằng JWT access token.
+- Refresh access token bằng refresh token.
+- Đăng xuất và vô hiệu hóa phiên đăng nhập hiện tại.
+- Reset mật khẩu qua email.
+- Lưu lịch sử đăng nhập phục vụ refresh token.
+
+### Hồ Sơ Người Dùng
+
+- Lấy thông tin tài khoản đang đăng nhập.
+- Cập nhật thông tin hồ sơ cá nhân.
+- Tìm kiếm người dùng theo tên hoặc số điện thoại.
+- Upload và cập nhật avatar qua Cloudinary.
+
+### Kết Bạn
+
+- Gửi lời mời kết bạn.
+- Chấp nhận lời mời kết bạn.
+- Từ chối lời mời kết bạn.
+- Xem danh sách bạn bè có phân trang.
+- Xem danh sách lời mời đang chờ xử lý.
+
+### Chat Realtime
+
+- Tạo hoặc lấy lại cuộc trò chuyện 1-1.
+- Xem danh sách hội thoại của người dùng.
+- Xem lịch sử tin nhắn theo hội thoại.
+- Gửi tin nhắn qua REST API.
+- Broadcast tin nhắn realtime qua WebSocket, SockJS và STOMP.
+- Xác thực kết nối WebSocket bằng JWT.
+
+### Quản Trị
+
+- Xem danh sách tài khoản active.
+- Xem danh sách tài khoản đã bị xóa mềm.
+- Xóa mềm tài khoản người dùng.
+
+### Hạ Tầng Backend
+
+- Bảo vệ API bằng Spring Security và JWT filter.
+- Phân quyền route bằng role `USER` và `ADMIN`.
+- Rate limit một số endpoint quan trọng bằng custom annotation và Redis.
+- Chuẩn hóa response API bằng `ApiResponse` và `PageResponse`.
+- Xử lý exception tập trung bằng global exception handler.
+- Audit entity bằng Hibernate Envers.
+- Soft delete cho tài khoản người dùng.
+- Tài liệu API bằng Swagger UI.
+- Docker Compose cho backend, MySQL và Redis.
 
 ### Frontend
 
-- React 19
-- Vite 7
-- React Router 7
-- Tailwind CSS 4
-- SockJS + STOMPJS
-- `jwt-decode`
-- `date-fns`
-- `lucide-react`
+- Trang đăng nhập.
+- Trang đăng ký.
+- Trang xác thực OTP.
+- Trang home sau khi đăng nhập.
+- Trang chat theo hội thoại.
+- Trang danh sách bạn bè.
+- Trang lời mời kết bạn.
+- Trang hồ sơ cá nhân.
+- Layout chính với sidebar điều hướng.
+- Error boundary cho lỗi giao diện.
+- Fetch client dùng `VITE_API_URL` và tự xử lý token hết hạn ở mức cơ bản.
+
+## Công Nghệ Triển Khai
 
 ### Backend
 
@@ -66,451 +95,118 @@ Lưu ý: source hiện tại đang được đặt trong hai thư mục lồng t
 - Spring Boot 3.5.4
 - Spring Security
 - Spring Data JPA
+- Hibernate Envers
 - MySQL
 - Redis
 - Spring WebSocket
+- SockJS và STOMP
 - Spring Mail
+- Cloudinary
 - MapStruct
 - Lombok
-- Hibernate Envers
+- Maven
+- Docker và Docker Compose
 - springdoc OpenAPI / Swagger UI
-- Cloudinary
-
-## 4. Kiến trúc hệ thống
 
 ### Frontend
 
-Frontend được tách theo hướng page + hooks + service:
-
-- `pages/`: màn hình theo nghiệp vụ
-- `hooks/`: gom business logic cho từng use-case
-- `service/`: gọi API theo domain
-- `libs/fetchClient.js`: HTTP client dùng chung
-- `context/AuthContext.jsx`: quản lý user đang đăng nhập
-- `components/`: layout, form, common UI, domain UI
-
-### Backend
-
-Backend đi theo layered architecture:
-
-- `controllers/`: nhận request và expose REST API
-- `service/`: xử lý nghiệp vụ
-- `repository/`: truy cập dữ liệu bằng Spring Data JPA
-- `model/`: entity
-- `dto/` + `mapper/`: contract request/response và mapping
-- `config/`, `filter/`, `security/`, `aspect/`: các concern cắt ngang như JWT, cache, WebSocket, rate limit
-
-## 5. Luồng nghiệp vụ chính
-
-### 5.1 Đăng ký và kích hoạt tài khoản
-
-1. Frontend gọi `POST /auths/signup`
-2. Backend tạo user với `active = false`
-3. Backend sinh OTP 6 số, lưu vào bảng `VerifyOTP`, gửi qua email
-4. Frontend chuyển sang trang xác thực tài khoản
-5. Frontend gọi `POST /auths/verify-otp`
-6. Backend kiểm tra OTP còn hạn 5 phút, nếu đúng thì kích hoạt tài khoản
-
-### 5.2 Đăng nhập
+- React 19
+- Vite 7
+- React Router 7
+- Tailwind CSS 4
+- SockJS Client
+- STOMPJS
+- `jwt-decode`
+- `date-fns`
+- `lucide-react`
+- Fetch API
 
-1. Frontend gọi `POST /auths/login`
-2. Backend xác thực bằng Spring Security + `AuthenticationManager`
-3. Backend trả về:
-   - `token` JWT
-   - `expiresIn`
-   - `refreshToken`
-4. Frontend hiện tại chỉ lưu:
-   - `access_token`
-   - `token_expiry`
+## Use Case Chính
 
-Lưu ý: backend đã hỗ trợ refresh token, nhưng frontend hiện tại chưa triển khai luồng tự động refresh và cũng chưa lưu `refreshToken` sau khi login.
+### UC01 - Đăng Ký Và Xác Thực Tài Khoản
 
-### 5.3 Kết bạn
+1. Người dùng nhập email, họ tên, số điện thoại và mật khẩu.
+2. Backend tạo tài khoản ở trạng thái chưa active.
+3. Hệ thống gửi OTP qua email.
+4. Người dùng nhập OTP để kích hoạt tài khoản.
+5. Tài khoản được active và có thể đăng nhập.
 
-1. Tìm user theo số điện thoại qua `POST /users/search`
-2. Gửi lời mời qua `POST /friend-ship/send-request`
-3. Người nhận xem danh sách pending qua `GET /friend-ship/pending-request`
-4. Chấp nhận hoặc từ chối qua:
-   - `POST /friend-ship/accept-request`
-   - `POST /friend-ship/reject-request`
-5. Danh sách bạn bè lấy từ `GET /friend-ship/all`
-
-### 5.4 Chat realtime
-
-1. Frontend mở trang chat và gọi `POST /conversations/direct`
-2. Backend tạo mới hoặc trả về cuộc trò chuyện direct đã có
-3. Frontend lấy lịch sử tin nhắn qua `GET /conversations/{id}/messages`
-4. Frontend kết nối WebSocket tới `/ws`
-5. Frontend subscribe topic `/topic/conversations/{conversationId}`
-6. Khi gửi tin nhắn qua `POST /conversations/{id}/messages`, backend vừa lưu DB vừa broadcast realtime
-
-### 5.5 Avatar
-
-1. Frontend chọn file ảnh
-2. Gọi:
-   - `POST /image/upload` nếu chưa có avatar
-   - `PUT /image/update/{imageId}` nếu đã có avatar
-3. Backend upload lên Cloudinary, lưu metadata và hash ảnh
-4. Backend có logic tránh dùng trùng nội dung ảnh theo hash
-
-## 6. Routes frontend
-
-Các route chính trong React:
-
-- `/` - landing page
-- `/login` - đăng nhập
-- `/signup` - đăng ký
-- `/verify-account` - nhập OTP kích hoạt tài khoản
-- `/home` - layout chính
-- `/home/friend-requests` - lời mời kết bạn
-- `/home/friends` - danh sách bạn bè
-- `/home/profile` - hồ sơ cá nhân
-- `/home/message/:fullName` - trang chat
-
-## 7. API backend chính
+### UC02 - Đăng Nhập
 
-### Auth - `/auths`
+1. Người dùng nhập email và mật khẩu.
+2. Backend xác thực thông tin đăng nhập.
+3. Backend trả về access token và refresh token.
+4. Frontend lưu token và chuyển người dùng vào khu vực chính của ứng dụng.
 
-- `POST /auths/signup`
-- `POST /auths/login`
-- `POST /auths/refresh`
-- `POST /auths/verify-otp`
-- `POST /auths/logout`
-- `POST /auths/reset-password`
+### UC03 - Refresh Token
 
-### User - `/users`
+1. Frontend gửi refresh token tới backend.
+2. Backend kiểm tra refresh token trong lịch sử đăng nhập.
+3. Nếu hợp lệ, backend cấp access token mới.
 
-- `GET /users/me`
-- `GET /users/{fullName}`
-- `PUT /users/update-account`
-- `POST /users/search`
+### UC04 - Cập Nhật Hồ Sơ
 
-### Friendship - `/friend-ship`
+1. Người dùng mở trang hồ sơ.
+2. Frontend gọi API lấy thông tin tài khoản hiện tại.
+3. Người dùng chỉnh sửa thông tin cá nhân.
+4. Backend validate và lưu thay đổi.
 
-- `POST /friend-ship/send-request`
-- `POST /friend-ship/accept-request`
-- `POST /friend-ship/reject-request`
-- `GET /friend-ship/all`
-- `GET /friend-ship/pending-request`
+### UC05 - Upload Avatar
 
-### Conversation - `/conversations`
+1. Người dùng chọn ảnh đại diện.
+2. Frontend gửi file ảnh lên backend.
+3. Backend upload ảnh lên Cloudinary.
+4. Backend lưu thông tin ảnh và trả về dữ liệu avatar mới.
 
-- `GET /conversations`
-- `GET /conversations/{conversationId}/messages`
-- `POST /conversations/{conversationId}/messages`
-- `POST /conversations/direct`
+### UC06 - Tìm Kiếm Và Gửi Lời Mời Kết Bạn
 
-### Image - `/image`
+1. Người dùng tìm kiếm người khác bằng tên hoặc số điện thoại.
+2. Frontend hiển thị kết quả tìm kiếm.
+3. Người dùng gửi lời mời kết bạn.
+4. Backend tạo friendship ở trạng thái pending.
 
-- `POST /image/upload`
-- `PUT /image/update/{imageId}`
+### UC07 - Duyệt Lời Mời Kết Bạn
 
-### Admin - `/admin`
+1. Người dùng mở trang lời mời kết bạn.
+2. Frontend tải danh sách request đang chờ.
+3. Người dùng chấp nhận hoặc từ chối.
+4. Backend cập nhật trạng thái friendship.
 
-- `GET /admin/all`
-- `GET /admin/all/deleted`
-- `DELETE /admin/delete-account`
+### UC08 - Bắt Đầu Chat 1-1
 
-## 8. Chuẩn response
+1. Người dùng chọn một bạn bè để nhắn tin.
+2. Frontend gọi API tạo hoặc lấy lại direct conversation.
+3. Backend trả về thông tin hội thoại.
+4. Frontend mở màn hình chat tương ứng.
 
-Backend đang dùng hai wrapper chính:
+### UC09 - Gửi Và Nhận Tin Nhắn Realtime
 
-### `ApiResponse<T>`
+1. Người dùng nhập nội dung tin nhắn.
+2. Frontend gửi message tới backend.
+3. Backend lưu tin nhắn vào MySQL.
+4. Backend broadcast message qua WebSocket topic của hội thoại.
+5. Các client đang mở hội thoại nhận tin nhắn realtime.
 
-```json
-{
-  "status": 200,
-  "success": true,
-  "message": "Message",
-  "data": {}
-}
-```
+### UC10 - Quản Trị Tài Khoản
 
-### `PageResponse<T>`
+1. Admin đăng nhập bằng tài khoản có role phù hợp.
+2. Admin xem danh sách user active hoặc deleted.
+3. Admin thực hiện xóa mềm tài khoản khi cần.
 
-```json
-{
-  "status": 200,
-  "success": true,
-  "message": "Message",
-  "data": [],
-  "page": 0,
-  "size": 10,
-  "totalElements": 0,
-  "totalPages": 0,
-  "last": true
-}
-```
+## API Chính
 
-## 9. Bảo mật và hạ tầng
+| Nhóm | Endpoint |
+| --- | --- |
+| Auth | `POST /auths/signup`, `POST /auths/login`, `POST /auths/refresh`, `POST /auths/verify-otp`, `POST /auths/logout`, `POST /auths/reset-password` |
+| User | `GET /users/me`, `GET /users/{fullName}`, `PUT /users/update-account`, `POST /users/search` |
+| Image | `POST /image/upload`, `PUT /image/update/{imageId}` |
+| Friendship | `POST /friend-ship/send-request`, `POST /friend-ship/accept-request`, `POST /friend-ship/reject-request`, `GET /friend-ship/all`, `GET /friend-ship/pending-request` |
+| Conversation | `GET /conversations`, `GET /conversations/{conversationId}/messages`, `POST /conversations/{conversationId}/messages`, `POST /conversations/direct` |
+| Admin | `GET /admin/all`, `GET /admin/all/deleted`, `DELETE /admin/delete-account` |
+| WebSocket | SockJS endpoint `/ws`, broker topic `/topic`, app prefix `/app` |
 
-### JWT
+## Kiểm Tra
 
-- Backend sinh JWT qua `JwtService`
-- JWT chứa thêm các claim:
-  - `userId`
-  - `name`
-  - `avatar`
-  - `role`
-- `JwtAuthenticationFilter` đọc token từ header `Authorization: Bearer <token>`
+- Backend: `.\mvnw.cmd test`
+- Frontend: `npm run build`
 
-### Refresh token
-
-- Refresh token được lưu trong bảng `HistoryLogin`
-- API `POST /auths/refresh` đã sẵn sàng ở backend
-- Frontend hiện tại chưa dùng luồng refresh này
-
-### Redis
-
-Redis đang được dùng cho:
-
-- Cache dữ liệu user/friend
-- Blacklist access token khi logout
-- Rate limiting bằng Redis counter + TTL
-
-### Rate limit
-
-Nhiều endpoint đang gắn `@RateLimit(limit = 5, timeWindowSeconds = 60)`.
-
-### WebSocket
-
-- Endpoint: `/ws`
-- Broker prefix: `/topic`, `/queue`
-- User destination prefix: `/user`
-- Frontend đang subscribe theo conversation:
-  - `/topic/conversations/{conversationId}`
-
-### Audit và soft delete
-
-- Entity kế thừa `BaseEntity` có:
-  - `createdAt`
-  - `updatedAt`
-  - `createdBy`
-  - `updatedBy`
-- `User` kế thừa `SoftDelete`
-- Dự án dùng Hibernate Envers để lưu audit history
-
-## 10. Cấu hình môi trường
-
-### 10.1 Frontend
-
-Tạo file `.env` trong `reactjs/reactjs`:
-
-```env
-VITE_API_URL=http://localhost:8080
-```
-
-Lưu ý quan trọng: REST API dùng `VITE_API_URL`, nhưng WebSocket trong `src/hooks/useChat.js` hiện đang hard-code thành:
-
-```js
-http://localhost:8080/ws
-```
-
-Nếu đổi domain hoặc port backend, cần sửa chỗ này hoặc tách nó thành biến môi trường riêng.
-
-### 10.2 Backend
-
-Backend cần tối thiểu các biến sau:
-
-```env
-MAIL_USERNAME=your_email@gmail.com
-MAIL_PASSWORD=your_app_password
-CLOUDINARY_NAME=your_cloud_name
-CLOUDINARY_API_KEY=your_cloudinary_api_key
-CLOUDINARY_API_SECRET=your_cloudinary_api_secret
-DB_URL=jdbc:mysql://localhost:3306/chat?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=Asia/Ho_Chi_Minh&zeroDateTimeBehavior=convertToNull
-DB_USERNAME=root
-DB_PASSWORD=your_password
-```
-
-Trong source hiện tại:
-
-- `application.yml` mặc định thiên về môi trường Docker:
-  - MySQL host: `mysql`
-  - Redis host: `redis`
-- `application-dev-local.yml` chỉ override datasource sang `localhost:3306`
-- Redis host trong profile local chưa override về `localhost`
-
-## 11. Chạy dự án
-
-### 11.1 Cách khuyến nghị: backend bằng Docker, frontend chạy local
-
-Đây là cách khớp nhất với source hiện có.
-
-### Bước 1: tạo Docker network
-
-```bash
-docker network create spring-network
-```
-
-### Bước 2: tạo file `.env` cho backend
-
-Đặt file tại:
-
-```text
-SpringSecurity/SpringSecurity/.env
-```
-
-### Bước 3: chạy backend + MySQL + Redis
-
-Từ thư mục:
-
-```text
-SpringSecurity/SpringSecurity
-```
-
-chạy:
-
-```bash
-docker compose -f docker/docker-compose.yml up --build
-```
-
-Backend sẽ chạy ở:
-
-```text
-http://localhost:8080
-```
-
-Swagger UI:
-
-```text
-http://localhost:8080/swagger-ui/index.html
-```
-
-### Bước 4: chạy frontend
-
-Từ thư mục:
-
-```text
-reactjs/reactjs
-```
-
-chạy:
-
-```bash
-npm install
-npm run dev
-```
-
-Frontend mặc định chạy ở:
-
-```text
-http://localhost:5173
-```
-
-### 11.2 Chạy backend local bằng Maven
-
-Từ thư mục:
-
-```text
-SpringSecurity/SpringSecurity
-```
-
-chạy:
-
-```bash
-mvn -Pdev-local spring-boot:run
-```
-
-Hoặc dùng Maven Wrapper:
-
-```bash
-./mvnw -Pdev-local spring-boot:run
-# Windows PowerShell
-.\mvnw.cmd -Pdev-local spring-boot:run
-```
-
-### Điều cần biết khi chạy local
-
-- MySQL local phải có database `chat`
-- `application-dev-local.yml` đang dùng `localhost:3306`
-- Redis trong base config vẫn đang là host `redis`
-
-Nếu chạy local hoàn toàn, bạn nên override Redis host về `localhost`, ví dụ:
-
-```bash
-mvn -Pdev-local spring-boot:run -Dspring-boot.run.jvmArguments="-Dspring.data.redis.host=localhost"
-```
-
-## 12. Docker compose hiện có
-
-Backend có sẵn các file:
-
-- `docker/docker-compose.yml`
-- `docker/docker-compose.app.yml`
-- `docker/docker-compose.db.yml`
-- `docker/docker-compose.redis.yml`
-- `docker/Dockerfile`
-
-Một vài thông số đang dùng:
-
-- App: `8080:8080`
-- Redis: `6379:6379`
-- MySQL: `3307:3306`
-
-Lưu ý: MySQL Docker public ra cổng `3307`, trong khi profile `dev-local` của backend đang dùng `3306`. Vì vậy nếu chạy backend local nhưng tái dùng MySQL từ Docker, bạn cần sửa `DB_URL` hoặc override lại port.
-
-## 13. Tài khoản seed
-
-Khi khởi động, `DataInitializer` sẽ tạo sẵn admin nếu chưa có:
-
-- Email: `admin@gmail.com`
-- Password: `123`
-
-Tuy nhiên theo đúng logic `createUser(...)` hiện tại, tài khoản này vẫn được tạo với `active = false` và đi qua luồng OTP email giống user thường.
-
-## 14. Testing
-
-Backend hiện có một số test trong `src/test/java`, gồm:
-
-- `AuthServiceTest`
-- `JwtServiceTest`
-- `UserValidationServiceTest`
-- `VerifyOTPServiceTest`
-- `CustomUserDetailServiceTest`
-
-Frontend hiện chưa thấy test setup riêng trong source.
-
-## 15. Ghi chú quan trọng theo source hiện tại
-
-- Frontend chưa có màn hình quản trị, dù backend đã có API admin
-- Frontend chưa lưu và chưa dùng `refreshToken` sau khi đăng nhập
-- WebSocket URL đang hard-code `http://localhost:8080/ws`
-- Xác thực UI phía frontend chủ yếu dựa vào token trong `localStorage`; khi API trả `401/403`, app sẽ xóa token và đẩy người dùng về `/login`
-- Swagger đã mở sẵn qua Springdoc
-- CORS mặc định cho phép `http://localhost:5173`, có thể override bằng `app.cors.allowed-origins`
-
-## 16. Lệnh nhanh
-
-### Frontend
-
-```bash
-npm install
-npm run dev
-npm run build
-npm run lint
-```
-
-### Backend
-
-```bash
-mvn -Pdev-local spring-boot:run
-mvn test
-mvn clean package
-```
-
-### Docker
-
-```bash
-docker network create spring-network
-docker compose -f docker/docker-compose.yml up --build
-```
-
-## 17. Đề xuất cải thiện tiếp theo
-
-- Đưa WebSocket URL sang biến môi trường frontend
-- Triển khai lưu và refresh access token bằng `refreshToken`
-- Thêm route guard rõ ràng cho frontend
-- Bổ sung test cho frontend
-- Đồng bộ lại profile local của Redis để chạy local mượt hơn
-- Tách secret JWT ra môi trường thay vì hard-code trong `application.yml`

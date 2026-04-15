@@ -1,6 +1,6 @@
 # 💬 Frontend Chat App - React + Vite
 
-README này tổng hợp chi tiết kiến trúc và kỹ thuật của phần frontend trong dự án, dựa trên source code thực tế tại `reactjs/reactjs/src`.
+README này tổng hợp chi tiết kiến trúc và kỹ thuật của phần frontend trong dự án, dựa trên source code thực tế tại `frontend/src`.
 
 ---
 
@@ -216,4 +216,4 @@ VITE_API_URL=http://localhost:8080
 
 ## 👨‍💻 Ghi chú
 
-Tài liệu này phản ánh trạng thái source code frontend hiện tại trong thư mục `reactjs/reactjs`.
+Tài liệu này phản ánh trạng thái source code frontend hiện tại trong thư mục `frontend`.
