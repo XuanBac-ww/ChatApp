@@ -1,6 +1,7 @@
 package com.example.SpringSecurity.exception;
 
 import com.example.SpringSecurity.dto.response.api.ApiResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -10,10 +11,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
-import java.util.HashMap;
-import java.util.Map;
 
-
+@Slf4j
 @RestControllerAdvice
 public class GlobalHandlerException {
 
@@ -29,14 +28,15 @@ public class GlobalHandlerException {
     }
 
 
-    // Lỗi chung
+    // Lỗi chung - không trả nguyên văn ex.getMessage() ra client để tránh rò rỉ chi tiết nội bộ (stack trace, SQL, path...)
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Object>> handleException(Exception ex) {
+        log.error("Unhandled exception", ex);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new ApiResponse<>(
                         500,
                         false,
-                        ex.getMessage(),
+                        "Internal server error",
                         null
                 ));
     }
@@ -84,7 +84,7 @@ public class GlobalHandlerException {
         FieldError firstError = ex.getBindingResult().getFieldErrors().get(0);
         String errorMessage = firstError.getDefaultMessage();
 
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new ApiResponse<>(
                         HttpStatus.BAD_REQUEST.value(),
                         false,

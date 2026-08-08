@@ -4,11 +4,8 @@ import com.example.SpringSecurity.model.Conversation;
 import com.example.SpringSecurity.model.ConversationParticipant;
 import com.example.SpringSecurity.model.User;
 import com.example.SpringSecurity.repository.Abstraction.IBaseRepository;
-import io.lettuce.core.dynamic.annotation.Param;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
 
 @Repository

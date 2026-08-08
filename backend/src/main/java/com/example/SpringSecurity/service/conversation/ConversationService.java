@@ -22,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Caching;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -157,38 +158,54 @@ public class ConversationService implements IConversationService {
 
         Conversation conversation = conversationRepository
                 .findDirectConversationBetweenUsers(sender.getId(), recipient.getId())  // kiểm tra xem có cuộc trò chuyện chưa
-                .orElseGet(() -> {
-                    // Nếu chưa thì tạo cuộc trò chuyện
-
-                    Conversation newConvo = Conversation.builder()
-                            .type(ConversationType.DIRECT_MESSAGE)
-                            .build();
-                    conversationRepository.save(newConvo);
-
-                    ConversationParticipant p1 = ConversationParticipant.builder()
-                            .user(sender)
-                            .conversation(newConvo)
-                            .role(ConversationRole.MEMBER)
-                            .build();
-                    ConversationParticipant p2 = ConversationParticipant.builder()
-                            .user(recipient)
-                            .conversation(newConvo)
-                            .role(ConversationRole.MEMBER)
-                            .build();
-
-                    // Lưu
-                    participantRepository.saveAll(List.of(p1, p2));
-
-                    // Set 2 người vào cuộc trò chuyện
-                    newConvo.setParticipants(new ArrayList<>(List.of(p1, p2)));
-
-                    return newConvo;
-                });
+                .orElseGet(() -> createDirectConversation(sender, recipient));
 
         log.info("startOrGetDirectConversation completed for userId={} recipientId={}", userId, recipientId);
         return new ApiResponse<>(200, true,
                 "Conversation created successfully",
                 conversationMapper.mapToConversationDetailDTO(conversation));
+    }
+
+    // Tạo direct conversation mới. directPairKey có unique constraint ở DB nên nếu 2 request đồng thời
+    // cùng tạo conversation cho cùng 1 cặp user, request thua cuộc sẽ nhận DataIntegrityViolationException
+    // khi flush và lấy lại conversation mà request kia vừa tạo, thay vì tạo ra 2 conversation trùng nhau.
+    private Conversation createDirectConversation(User sender, User recipient) {
+        String pairKey = buildDirectPairKey(sender.getId(), recipient.getId());
+
+        Conversation newConvo = Conversation.builder()
+                .type(ConversationType.DIRECT_MESSAGE)
+                .directPairKey(pairKey)
+                .build();
+
+        try {
+            conversationRepository.saveAndFlush(newConvo);
+        } catch (DataIntegrityViolationException e) {
+            log.warn("Concurrent direct conversation creation detected for pairKey={}, reusing existing conversation", pairKey);
+            return conversationRepository.findDirectConversationBetweenUsers(sender.getId(), recipient.getId())
+                    .orElseThrow(() -> new AppException("Conversation not found"));
+        }
+
+        ConversationParticipant p1 = ConversationParticipant.builder()
+                .user(sender)
+                .conversation(newConvo)
+                .role(ConversationRole.MEMBER)
+                .build();
+        ConversationParticipant p2 = ConversationParticipant.builder()
+                .user(recipient)
+                .conversation(newConvo)
+                .role(ConversationRole.MEMBER)
+                .build();
+
+        participantRepository.saveAll(List.of(p1, p2));
+        newConvo.setParticipants(new ArrayList<>(List.of(p1, p2)));
+
+        return newConvo;
+    }
+
+    private String buildDirectPairKey(Long userId1, Long userId2) {
+        long min = Math.min(userId1, userId2);
+        long max = Math.max(userId1, userId2);
+        return min + "_" + max;
     }
 
     private Conversation getConversationById(Long id) {

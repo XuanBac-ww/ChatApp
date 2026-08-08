@@ -5,10 +5,15 @@ spring:
   datasource:
     url: jdbc:mysql://localhost:3306/chat?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=Asia/Ho_Chi_Minh&zeroDateTimeBehavior=convertToNull
     username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD:***REMOVED-DB-PASSWORD***}
+    password: ${DB_PASSWORD:root}
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
+
+security:
+  jwt:
+    # Dev-only fallback secret, safe to keep in git. Override with JWT_SECRET for real use.
+    secret-key: ${JWT_SECRET:mVj+q6jyVBCJ43rSpRkoJBaStdXND2HeLIxj61ZoXL4=}
 

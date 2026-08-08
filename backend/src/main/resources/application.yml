@@ -3,8 +3,8 @@ spring:
     name: SpringSecurity
   datasource:
     url: jdbc:mysql://mysql:3306/chat?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=Asia/Ho_Chi_Minh&zeroDateTimeBehavior=convertToNull
-    username: root
-    password: ***REMOVED-DB-PASSWORD***
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
@@ -50,6 +50,6 @@ server:
 
 security:
   jwt:
-    secret-key: ***REMOVED-JWT-SECRET***
+    secret-key: ${JWT_SECRET}
     expiration-time: 900000
     refreshExpirationMs: 604800000

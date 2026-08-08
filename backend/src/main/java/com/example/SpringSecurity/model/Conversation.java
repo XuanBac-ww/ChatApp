@@ -29,6 +29,11 @@ public class Conversation extends BaseEntity {
     @Column(nullable = false)
     private ConversationType type;
 
+    // Khóa xác định cặp user cho DIRECT_MESSAGE, dạng "minUserId_maxUserId". Null với conversation nhóm.
+    // Unique constraint chặn 2 direct conversation trùng nhau khi có race condition (MySQL cho phép nhiều NULL trong unique index).
+    @Column(name = "direct_pair_key", unique = true, length = 40)
+    private String directPairKey;
+
     @OneToMany(mappedBy = "conversation", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ConversationParticipant> participants;
 
